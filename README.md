@@ -3,6 +3,7 @@
 ### Summary:
  * [About this project](#about_this_project)
  * [Prerequisites](#prerequisites)
+ * [How to run car calibration](#how_to_run_calibration)
  * [How to run data collection](#how_to_run)
  * [About this Sunfounder Car Kit](#about_this_kit)
  * [Contact](#contact)
@@ -18,26 +19,42 @@ Forked from: [Sunfounder Smart Video Car Kit for Raspberry Pi](https://github.co
 
 <a id="prerequisites"></a>
 ### Prerequisites:
-This project is written for Python 2.7
+This project is written for `Python 2.7`
 
 On both PC and car clone the project:
 
                 https://github.com/dlime/Deep-Learning-RC-Car-Data-Collector.git
 
-Before running the files install the necessary libraries:
+Install the necessary libraries:
 
-On PC:
+#### On PC:
 
                 sudo apt-get install python-tk
 
-On car:
+#### On car:
 
                 sudo apt-get install python-dev python-smbus
 
-Install opencv2 (follow this [guide](http://www.pyimagesearch.com/2016/04/18/install-guide-raspberry-pi-3-raspbian-jessie-opencv-3/))
+Install `opencv2` (follow this [guide](http://www.pyimagesearch.com/2016/04/18/install-guide-raspberry-pi-3-raspbian-jessie-opencv-3/))
+
+<a id="how_to_run_calibration"></a>
+### How to run car calibration:
+
+* Set HOST with your car IP in `client/cali_client.py`
+* From your car run `sudo python2 server/cali_server.py`
+* From your car PC `sudo python2 server/cali_client.py`
+* Tune the parameters and press `Confirm`
 
 <a id="how_to_run"></a>
 ### How to run data collection:
+
+Before proceeding:
+* Check that you installed all the [required libraries](#prerequisites)
+* You have [calibrated](#how_to_run_calibration) your car
+* Your PC can ping the car: `ping pi@<rasperry-pi-IP>`
+* You have set `HOST` with your car IP in `client/client_App.py`
+
+
 From Rasperry PI run the server routing:
 
                 sudo python2 server/tcp_server.py
@@ -46,7 +63,7 @@ From user computer run the client + GUI application:
 
                 sudo python2 client/client_App.py
 
-Once the GUI is shown, click on "RECORD" or press Space to start recording webcam images. Press Space again to stop recording.
+Once the GUI is shown, click on `RECORD` or press `Space` to start recording webcam images. Press `Space` again to stop recording.
 
 **NOTE: the car will slowly start to walk, control the steering wheel!**
 
@@ -56,7 +73,7 @@ Recorded data will be stored in this way:
                 server/IMG/central-N.jpg
                 server/IMG/driving_log.csv
 
-driving_log.csv file format:
+`driving_log.csv` file format:
 
                 image_path,steering_angle
 
@@ -71,7 +88,7 @@ The TCP client program is run on PC to send the control command. Both the client
 The smart car is developed based on the open-source hardware Raspberry Pi and integrates the knowledge of mechanics, electronics, and computer, thus having profound educational significance. 
 
 #### Notice:
-It's meant to be used with Sunfounder Rasperry Pi Car Kit.
+This project is meant to be used with `Sunfounder Rasperry Pi Car Kit`
 
 Before you run any client routine, you must first run the server routine.
 
