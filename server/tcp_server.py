@@ -1,18 +1,18 @@
 #!/usr/bin/env python
-import RPi.GPIO as GPIO
 import video_dir
 import car_dir
 import motor
 from socket import *
-from time import ctime  # Import necessary modules
+import time
 import threading
 import cv2
 import csv
 
 steering_angle_lock = threading.Lock()
+recording_enabled_lock = threading.Lock()
 
 recording_enabled = False
-current_steering_angle = 0
+current_steering_angle = car_dir.homePWM
 
 ctrl_cmd = ['forward', 'backward', 'left', 'right', 'stop', 'read cpu_temp', 'home', 'distance', 'x+', 'x-', 'y+', 'y-',
             'xy_home', 'toggleRecordTrue', 'toggleRecordFalse']
@@ -39,35 +39,46 @@ car_dir.home()
 def get_current_steering_angle():
     global steering_angle_lock
 
-    print 'acquiring'
     steering_angle_lock.acquire()
-    value = steering_angle_lock
+    value = current_steering_angle
     steering_angle_lock.release()
-    print 'set'
+
+    return value
+
+
+def get_recording_enabled():
+    global recording_enabled_lock
+
+    recording_enabled_lock.acquire()
+    value = recording_enabled
+    recording_enabled_lock.release()
 
     return value
 
 
 def recording_setup():
-    global csv_file, image_counter, video_capture, writer
+    global csv_file, image_counter, video_capture, writer, recording_thread, recording_run_event
     image_counter = 0
     video_capture = cv2.VideoCapture(0)
-    csv_file = open('IMG/driving_log.csv')
+    csv_file = open('IMG/driving_log.csv', 'w')
     writer = csv.writer(csv_file)
+    recording_run_event = threading.Event()
+    recording_run_event.set()
+    recording_thread = threading.Thread(target=recording_loop)
 
 
 def recording_loop():
-    global video_capture, image_counter, writer, recording_enabled
-    print 'recording loop'
-    if recording_enabled:
-        ret, image = video_capture.read()
-        if ret:
-            image_path = "IMG/central-" + str(image_counter) + ".jpg"
-            writer.writerow([image_path, get_current_steering_angle()])
-            cv2.imwrite(image_path, image)
-            image_counter += 1
-            print 'image stored..'
-    ctime.sleep(0.2)
+    global video_capture, image_counter, writer, recording_enabled, csv_file
+    while recording_run_event.is_set():
+        if get_recording_enabled():
+            ret, image = video_capture.read()
+            if ret:
+                image_path = "IMG/central-" + str(image_counter) + ".jpg"
+                writer.writerow([image_path, get_current_steering_angle()])
+                cv2.imwrite(image_path, image)
+                image_counter += 1
+                print 'image stored..'
+                time.sleep(0.2)
 
 
 def setup():
@@ -122,10 +133,14 @@ def process_command(data):
         video_dir.home_x_y()
     elif data == ctrl_cmd[13]:
         print 'toggleRecordTrue'
+        recording_enabled_lock.acquire()
         recording_enabled = True
+        recording_enabled_lock.release()
     elif data == ctrl_cmd[14]:
         print 'toggleRecordFalse'
+        recording_enabled_lock.acquire()
         recording_enabled = False
+        recording_enabled_lock.release()
     elif data[0:5] == 'speed':  # Change the speed
         print data
         num_len = len(data) - len('speed')
@@ -190,14 +205,15 @@ def server_routine_loop():
 
 if __name__ == "__main__":
     try:
+        recording_setup()
         setup()
 
-        t = threading.Thread(target=recording_loop)
-        t.start()
-
+        recording_thread.start()
         server_routine_loop()
+        recording_thread.join()
 
     except KeyboardInterrupt:
-        tcpSerSock.close()
+        recording_run_event.clear()
         csv_file.close()
         video_capture.release()
+        tcpSerSock.close()
