@@ -1,5 +1,4 @@
 *.pyc
 server/config
-client/config
-html_server/config
 .idea
+server/IMG
