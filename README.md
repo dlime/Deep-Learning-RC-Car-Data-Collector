@@ -1,6 +1,6 @@
 ## Deep learning data collector for Sunfounder Raspberry Pi Car Kit
 
-###Summary:
+### Summary:
  * [About this project](#about_this_project)
  * [Prerequisites](#prerequisites)
  * [How to run data collection](#how_to_run)
@@ -34,7 +34,7 @@ On car:
 
                 sudo apt-get install python-dev python-smbus
 
-Install opencv2 (follow this [guide]((http://www.pyimagesearch.com/2016/04/18/install-guide-raspberry-pi-3-raspbian-jessie-opencv-3/)))
+Install opencv2 (follow this [guide](http://www.pyimagesearch.com/2016/04/18/install-guide-raspberry-pi-3-raspbian-jessie-opencv-3/))
 
 <a id="how_to_run"></a>
 ### How to run data collection:
