@@ -9,7 +9,7 @@ ctrl_cmd = ['forward', 'backward', 'left', 'right', 'stop', 'read cpu_temp', 'ho
 top = Tk()  # Create a top window
 top.title('Sunfounder Raspberry Pi Smart Video Car')
 
-HOST = '192.168.0.147'  # Server(Raspberry Pi) IP address
+HOST = '192.168.1.3'  # Server(Raspberry Pi) IP address
 PORT = 21567
 BUFSIZ = 1024  # buffer size
 ADDR = (HOST, PORT)
@@ -185,6 +185,39 @@ label.grid(row=6, column=0)  # Label layout
 speed = Scale(top, from_=0, to=100, orient=HORIZONTAL, command=changeSpeed)  # Create a scale
 speed.set(50)
 speed.grid(row=6, column=1)
+steering_angle = 450
+
+
+def changeSteeringAngle(ev=None):
+    tmp = 'turnBy'
+    global steering_angle
+    steering_angle = steering_angle_scale.get()
+    data = tmp + str(steering_angle)
+    print 'sendData = %s' % data
+    tcpCliSock.send(data)
+
+
+def steering_decrease(event):
+    print 'steering_angle-'
+    current_value = steering_angle_scale.get()
+    steering_angle_scale.set(current_value - 20)
+    changeSteeringAngle()
+
+
+def steering_increase(event):
+    print 'steering_angle+'
+    current_value = steering_angle_scale.get()
+    steering_angle_scale.set(current_value + 20)
+    changeSteeringAngle()
+
+
+label = Label(top, text='Turn by:', fg='red')
+label.grid(row=7, column=0)
+steering_angle_scale = Scale(top, from_=400, to=500, orient=HORIZONTAL, command=changeSteeringAngle)
+steering_angle_scale.set(450)
+steering_angle_scale.grid(row=7, column=1)
+top.bind('<KeyPress-n>', steering_decrease)
+top.bind('<KeyPress-m>', steering_increase)
 
 
 def main():

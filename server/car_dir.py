@@ -3,12 +3,12 @@ import PCA9685 as servo
 import time  # Import necessary modules
 
 
-def Map(x, in_min, in_max, out_min, out_max):
+def map_angle(x, in_min, in_max, out_min, out_max):
     return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
 
 
 def setup(busnum=None):
-    global leftPWM, rightPWM, homePWM, pwm
+    global leftPWM, rightPWM, homePWM, pwm, offset
     leftPWM = 400
     homePWM = 450
     rightPWM = 500
@@ -22,7 +22,7 @@ def setup(busnum=None):
     leftPWM += offset
     homePWM += offset
     rightPWM += offset
-    if busnum == None:
+    if busnum is None:
         pwm = servo.PWM()  # Initialize the servo controller.
     else:
         pwm = servo.PWM(bus_number=busnum)  # Initialize the servo controller.
@@ -51,8 +51,18 @@ def turn_right():
 # ==========================================================================================
 
 def turn(angle):
-    angle = Map(angle, 0, 255, leftPWM, rightPWM)
+    angle = map_angle(angle, 0, 255, leftPWM, rightPWM)
     pwm.write(0, 0, angle)
+
+
+def turn_by(steering_angle):
+    global leftPWM, rightPWM, offset, pwm
+    steering_angle += offset
+    if steering_angle < leftPWM:
+        steering_angle = leftPWM
+    if steering_angle > rightPWM:
+        steering_angle = rightPWM
+    pwm.write(0, 0, steering_angle)
 
 
 def home():

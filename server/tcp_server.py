@@ -89,6 +89,15 @@ while True:
                 if spd < 24:
                     spd = 24
                 motor.setSpeed(spd)
+        elif data[0:6] == 'turnBy':
+            print data
+            numLen = len(data) - len('turnBy')
+            if numLen == 1 or numLen == 2 or numLen == 3:
+                tmp = data[-numLen:]
+                print 'tmp(str) = %s' % tmp
+                steering_angle = int(tmp)
+                print 'steering_angle(int) = %d' % steering_angle
+                car_dir.turn_by(steering_angle)
         elif data[0:5] == 'turn=':  # Turning Angle
             print 'data =', data
             angle = data.split('=')[1]
