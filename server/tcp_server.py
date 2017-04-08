@@ -5,14 +5,13 @@ import car_dir
 import motor
 from socket import *
 from time import ctime  # Import necessary modules
+import threading
+import thread
 import cv2
 import csv
 
-video_capture = cv2.VideoCapture(0)
-csv_file = open('IMG/driving_log.csv', 'w', newline='')
-writer = csv.writer(csv_file)
-image_counter = 0
-loop_counter = 0
+steering_angle_lock = threading.Lock()
+
 recording_enabled = False
 current_steering_angle = 0
 
@@ -38,26 +37,54 @@ video_dir.home_x_y()
 car_dir.home()
 
 
-def record_data():
-    global image_counter, loop_counter
-    print 'record_data'
-    if loop_counter % 100 == 0:
-        success, image = video_capture.read()
-        if success:
-            image_path = "IMG/central-" + str(image_counter) + ".jpg"
-            writer.writerow([image_path, current_steering_angle])
-            cv2.imwrite(image_path, image)
-            image_counter += 1
+def get_current_steering_angle():
+    global steering_angle_lock
+
+    print 'acquiring'
+    steering_angle_lock.acquire()
+    value = steering_angle_lock
+    steering_angle_lock.release()
+    print 'set'
+
+    return value
+
+
+def recording_setup_and_loop():
+    image_counter = 0
+    video_capture = cv2.VideoCapture(0)
+    csv_file = open('IMG/driving_log.csv')
+    writer = csv.writer(csv_file)
+    try:
+        while True:
+            print 'recording loop'
+            if recording_enabled:
+                ret, image = video_capture.read()
+                if ret:
+                    image_path = "IMG/central-" + str(image_counter) + ".jpg"
+                    writer.writerow([image_path, get_current_steering_angle()])
+                    cv2.imwrite(image_path, image)
+                    image_counter += 1
+                    print 'image stored..'
+
+    except KeyboardInterrupt:
+        csv_file.close()
+        video_capture.release()
 
 
 def setup():
-    global tcpCliSock
+    global tcpCliSock, datacolletor
+
     print 'Waiting for connection...'
     # Waiting for connection. Once receiving a connection, the function accept() returns a separate
     # client socket for the subsequent communication. By default, the function accept() is a blocking
     # one, which means it is suspended before the connection comes.
     tcpCliSock, addr = tcpSerSock.accept()
     print '...connected from :', addr  # Print the IP address of the client connected with the server.
+
+    try:
+        thread.start_new_thread(recording_setup_and_loop)
+    except:
+        print "Error: unable to start thread"
 
 
 def process_command(data):
@@ -123,7 +150,11 @@ def process_command(data):
             received_angle = data[-num_len:]
             steering_angle = int(received_angle)
             print 'steering_angle(int) = %d' % steering_angle
+
+            steering_angle_lock.acquire()
             current_steering_angle = steering_angle
+            steering_angle_lock.release()
+
             car_dir.turn_by(steering_angle)
     elif data[0:5] == 'turn=':  # Turning Angle
         print 'data =', data
@@ -153,8 +184,7 @@ def process_command(data):
         print 'Command Error! Cannot recognize command: ' + data
 
 
-def loop():
-    global loop_counter
+def server_routine_loop():
     while True:
         # Receive data sent from the client.
         data = tcpCliSock.recv(BUFSIZ)
@@ -163,19 +193,11 @@ def loop():
         if data:
             process_command(data)
 
-        if recording_enabled:
-            record_data()
-
-        # This is required so that we store an image every 200 loops and avoid data spam
-        # TODO with a separate recorder thread this could have been done with time.sleep
-        loop_counter += 1
-        print 'loop_counter %d', loop_counter
 
 if __name__ == "__main__":
     try:
         setup()
-        loop()
+        server_routine_loop()
+
     except KeyboardInterrupt:
         tcpSerSock.close()
-        csv_file.close()
-        video_capture.release()
