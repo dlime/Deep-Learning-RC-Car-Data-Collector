@@ -39,8 +39,9 @@ car_dir.home()
 
 
 def record_data():
-    global image_counter
-    if recording_enabled and loop_counter % 200 == 0:
+    global image_counter, loop_counter
+    print 'record_data'
+    if loop_counter % 100 == 0:
         success, image = video_capture.read()
         if success:
             image_path = "IMG/central-" + str(image_counter) + ".jpg"
@@ -168,7 +169,7 @@ def loop():
         # This is required so that we store an image every 200 loops and avoid data spam
         # TODO with a separate recorder thread this could have been done with time.sleep
         loop_counter += 1
-
+        print 'loop_counter %d', loop_counter
 
 if __name__ == "__main__":
     try:
