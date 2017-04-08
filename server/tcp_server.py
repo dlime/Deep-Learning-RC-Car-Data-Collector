@@ -27,14 +27,18 @@ motor.setup(busnum=busnum)  # Initialize the Raspberry Pi GPIO connected to the 
 video_dir.home_x_y()
 car_dir.home()
 
-print 'Waiting for connection...'
-# Waiting for connection. Once receiving a connection, the function accept() returns a separate
-# client socket for the subsequent communication. By default, the function accept() is a blocking
-# one, which means it is suspended before the connection comes.
-tcpCliSock, addr = tcpSerSock.accept()
-print '...connected from :', addr  # Print the IP address of the client connected with the server.
 
-try:
+def setup():
+    global tcpCliSock
+    print 'Waiting for connection...'
+    # Waiting for connection. Once receiving a connection, the function accept() returns a separate
+    # client socket for the subsequent communication. By default, the function accept() is a blocking
+    # one, which means it is suspended before the connection comes.
+    tcpCliSock, addr = tcpSerSock.accept()
+    print '...connected from :', addr  # Print the IP address of the client connected with the server.
+
+
+def loop():
     while True:
         data = ''
         data = tcpCliSock.recv(BUFSIZ)  # Receive data sent from the client.
@@ -127,9 +131,13 @@ try:
                 motor.backward(spd)
             except:
                 print 'ERROR, speed =', spd
-
         else:
             print 'Command Error! Cannot recognize command: ' + data
 
-except KeyboardInterrupt:
-    tcpSerSock.close()
+
+if __name__ == "__main__":
+    try:
+        setup()
+        loop()
+    except KeyboardInterrupt:
+        tcpSerSock.close()
