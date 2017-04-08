@@ -52,6 +52,33 @@ top.bind('<KeyPress-m>', steering_increase)
 
 
 # =============================================================================
+# Toggle record button
+# =============================================================================
+is_recording = False
+
+
+def toggle_record(event):
+    global is_recording
+    if not is_recording:
+        BtnRecord.config(bg='gray')
+        BtnRecord.config(text='STOP RECORD')
+        is_recording = True
+    else:
+        BtnRecord.config(bg='red')
+        BtnRecord.config(text='RECORD')
+        is_recording = False
+
+    data = 'toggleRecord' + str(is_recording)
+    print 'sendData = %s' % data
+    tcpCliSock.send(data)
+
+
+BtnRecord = Button(top, width=9, height=2, text='RECORD', bg='red')
+BtnRecord.bind('<ButtonPress-1>', toggle_record)
+BtnRecord.grid(row=7, column=4)
+top.bind('<KeyPress-space>', toggle_record)
+
+# =============================================================================
 # The function is to send the command forward to the server, so as to make the 
 # car move forward.
 # ============================================================================= 
