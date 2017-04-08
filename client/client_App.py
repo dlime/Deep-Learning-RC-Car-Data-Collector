@@ -34,14 +34,12 @@ def steering_decrease(event):
     print 'steering_angle-'
     current_value = steering_angle_slide.get()
     steering_angle_slide.set(current_value - 20)
-    sendSteeringAngle()
 
 
 def steering_increase(event):
     print 'steering_angle+'
     current_value = steering_angle_slide.get()
     steering_angle_slide.set(current_value + 20)
-    sendSteeringAngle()
 
 
 label = Label(top, text='Turn by:', fg='red')
@@ -70,13 +68,11 @@ def backward_fun(event):
 def left_fun(event):
     print 'left'
     steering_angle_slide.set(left_pwm_angle)
-    sendSteeringAngle()
 
 
 def right_fun(event):
     print 'right'
     steering_angle_slide.set(right_pwm_angle)
-    sendSteeringAngle()
 
 
 def stop_fun(event):
@@ -87,7 +83,6 @@ def stop_fun(event):
 def home_fun(event):
     print 'home'
     steering_angle_slide.set(home_pwm_angle)
-    sendSteeringAngle()
 
 
 def x_increase(event):
