@@ -2,6 +2,13 @@
 import PCA9685 as servo
 import time  # Import necessary modules
 
+leftPWM = 400
+homePWM = 450
+rightPWM = 500
+offset = 0
+current_steering_angle = homePWM  # stores the current steering angle PWM (without offset)
+pwm = servo.PWM()  # Initialize the servo controller.
+
 
 def map_angle(x, in_min, in_max, out_min, out_max):
     return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
@@ -9,10 +16,6 @@ def map_angle(x, in_min, in_max, out_min, out_max):
 
 def setup(busnum=None):
     global leftPWM, rightPWM, homePWM, pwm, offset
-    leftPWM = 400
-    homePWM = 450
-    rightPWM = 500
-    offset = 0
     try:
         for line in open('config'):
             if line[0:8] == 'offset =':
@@ -22,9 +25,7 @@ def setup(busnum=None):
     leftPWM += offset
     homePWM += offset
     rightPWM += offset
-    if busnum is None:
-        pwm = servo.PWM()  # Initialize the servo controller.
-    else:
+    if busnum is not None:
         pwm = servo.PWM(bus_number=busnum)  # Initialize the servo controller.
     pwm.frequency = 60
 
@@ -34,7 +35,8 @@ def setup(busnum=None):
 # car turn left.
 # ==========================================================================================
 def turn_left():
-    global leftPWM
+    global leftPWM, pwm, current_steering_angle
+    current_steering_angle = leftPWM - offset
     pwm.write(0, 0, leftPWM)  # CH0
 
 
@@ -42,7 +44,8 @@ def turn_left():
 # Make the car turn right.
 # ==========================================================================================
 def turn_right():
-    global rightPWM
+    global rightPWM, pwm, current_steering_angle
+    current_steering_angle = rightPWM - offset
     pwm.write(0, 0, rightPWM)
 
 
@@ -51,12 +54,15 @@ def turn_right():
 # ==========================================================================================
 
 def turn(angle):
+    global leftPWM, rightPWM, pwm, current_steering_angle
     angle = map_angle(angle, 0, 255, leftPWM, rightPWM)
+    current_steering_angle = angle - offset
     pwm.write(0, 0, angle)
 
 
 def turn_by(steering_angle):
-    global leftPWM, rightPWM, offset, pwm
+    global leftPWM, rightPWM, offset, pwm, current_steering_angle
+    current_steering_angle = steering_angle
     steering_angle += offset
     if steering_angle < leftPWM:
         steering_angle = leftPWM
@@ -66,11 +72,13 @@ def turn_by(steering_angle):
 
 
 def home():
-    global homePWM
+    global homePWM, pwm, current_steering_angle
+    current_steering_angle = homePWM - offset
     pwm.write(0, 0, homePWM)
 
 
 def calibrate(x):
+    global pwm
     pwm.write(0, 0, 450 + x)
 
 

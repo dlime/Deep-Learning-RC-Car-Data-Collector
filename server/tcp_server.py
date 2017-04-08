@@ -93,9 +93,8 @@ while True:
             print data
             numLen = len(data) - len('turnBy')
             if numLen == 1 or numLen == 2 or numLen == 3:
-                tmp = data[-numLen:]
-                print 'tmp(str) = %s' % tmp
-                steering_angle = int(tmp)
+                received_angle = data[-numLen:]
+                steering_angle = int(received_angle)
                 print 'steering_angle(int) = %d' % steering_angle
                 car_dir.turn_by(steering_angle)
         elif data[0:5] == 'turn=':  # Turning Angle
