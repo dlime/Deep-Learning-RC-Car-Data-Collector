@@ -6,7 +6,6 @@ import motor
 from socket import *
 from time import ctime  # Import necessary modules
 import threading
-import thread
 import cv2
 import csv
 
@@ -49,26 +48,26 @@ def get_current_steering_angle():
     return value
 
 
-def recording_setup_and_loop():
+def recording_setup():
+    global csv_file, image_counter, video_capture, writer
     image_counter = 0
     video_capture = cv2.VideoCapture(0)
     csv_file = open('IMG/driving_log.csv')
     writer = csv.writer(csv_file)
-    try:
-        while True:
-            print 'recording loop'
-            if recording_enabled:
-                ret, image = video_capture.read()
-                if ret:
-                    image_path = "IMG/central-" + str(image_counter) + ".jpg"
-                    writer.writerow([image_path, get_current_steering_angle()])
-                    cv2.imwrite(image_path, image)
-                    image_counter += 1
-                    print 'image stored..'
 
-    except KeyboardInterrupt:
-        csv_file.close()
-        video_capture.release()
+
+def recording_loop():
+    global video_capture, image_counter, writer, recording_enabled
+    print 'recording loop'
+    if recording_enabled:
+        ret, image = video_capture.read()
+        if ret:
+            image_path = "IMG/central-" + str(image_counter) + ".jpg"
+            writer.writerow([image_path, get_current_steering_angle()])
+            cv2.imwrite(image_path, image)
+            image_counter += 1
+            print 'image stored..'
+    ctime.sleep(0.2)
 
 
 def setup():
@@ -80,11 +79,6 @@ def setup():
     # one, which means it is suspended before the connection comes.
     tcpCliSock, addr = tcpSerSock.accept()
     print '...connected from :', addr  # Print the IP address of the client connected with the server.
-
-    try:
-        thread.start_new_thread(recording_setup_and_loop)
-    except:
-        print "Error: unable to start thread"
 
 
 def process_command(data):
@@ -197,7 +191,13 @@ def server_routine_loop():
 if __name__ == "__main__":
     try:
         setup()
+
+        t = threading.Thread(target=recording_loop)
+        t.start()
+
         server_routine_loop()
 
     except KeyboardInterrupt:
         tcpSerSock.close()
+        csv_file.close()
+        video_capture.release()
