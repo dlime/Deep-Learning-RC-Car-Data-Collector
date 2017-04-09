@@ -8,11 +8,8 @@ import threading
 import cv2
 import csv
 
-steering_angle_lock = threading.Lock()
 recording_enabled_lock = threading.Lock()
-
 recording_enabled = False
-current_steering_angle = car_dir.homePWM
 
 ctrl_cmd = ['forward', 'backward', 'left', 'right', 'stop', 'read cpu_temp', 'home', 'distance', 'x+', 'x-', 'y+', 'y-',
             'xy_home', 'toggleRecordTrue', 'toggleRecordFalse']
@@ -34,16 +31,6 @@ car_dir.setup(busnum=busnum)
 motor.setup(busnum=busnum)  # Initialize the Raspberry Pi GPIO connected to the DC motor.
 video_dir.home_x_y()
 car_dir.home()
-
-
-def get_current_steering_angle():
-    global steering_angle_lock
-
-    steering_angle_lock.acquire()
-    value = current_steering_angle
-    steering_angle_lock.release()
-
-    return value
 
 
 def get_recording_enabled():
@@ -74,7 +61,7 @@ def recording_loop():
             ret, image = video_capture.read()
             if ret:
                 image_path = "IMG/central-" + str(image_counter) + ".jpg"
-                writer.writerow([image_path, get_current_steering_angle()])
+                writer.writerow([image_path, car_dir.get_current_steering_angle()])
                 cv2.imwrite(image_path, image)
                 image_counter += 1
                 print 'image stored..'
@@ -159,11 +146,6 @@ def process_command(data):
             received_angle = data[-num_len:]
             steering_angle = int(received_angle)
             print 'steering_angle(int) = %d' % steering_angle
-
-            steering_angle_lock.acquire()
-            current_steering_angle = steering_angle
-            steering_angle_lock.release()
-
             car_dir.turn_by(steering_angle)
     elif data[0:5] == 'turn=':  # Turning Angle
         print 'data =', data
