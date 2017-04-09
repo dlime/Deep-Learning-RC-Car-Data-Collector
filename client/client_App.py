@@ -23,7 +23,8 @@ left_pwm_angle = 400
 home_pwm_angle = 450
 right_pwm_angle = 500
 
-def sendSteeringAngle(ev=None):
+
+def send_steering_angle(ev=None):
     tmp = 'turnBy'
     data = tmp + str(steering_angle_slide.get())
     print 'sendData = %s' % data
@@ -44,12 +45,12 @@ def steering_increase(event):
 
 label = Label(top, text='Turn by:', fg='red')
 label.grid(row=7, column=0)
-steering_angle_slide = Scale(top, from_=left_pwm_angle, to=right_pwm_angle, orient=HORIZONTAL, command=sendSteeringAngle)
+steering_angle_slide = Scale(top, from_=left_pwm_angle, to=right_pwm_angle, orient=HORIZONTAL,
+                             command=send_steering_angle)
 steering_angle_slide.set(home_pwm_angle)
 steering_angle_slide.grid(row=7, column=1)
 top.bind('<KeyPress-n>', steering_decrease)
 top.bind('<KeyPress-m>', steering_increase)
-
 
 # =============================================================================
 # Toggle record button
@@ -73,10 +74,36 @@ def toggle_record(event):
     tcpCliSock.send(data)
 
 
-BtnRecord = Button(top, width=9, height=2, text='RECORD', bg='red')
+BtnRecord = Button(top, width=11, height=2, text='RECORD', bg='red')
 BtnRecord.bind('<ButtonPress-1>', toggle_record)
 BtnRecord.grid(row=7, column=4)
 top.bind('<KeyPress-space>', toggle_record)
+
+# =============================================================================
+# Toggle auto run button
+# =============================================================================
+is_running = False
+
+
+def toggle_autorun(event):
+    global is_running
+    if not is_running:
+        BtnAutorun.config(bg='gray')
+        BtnAutorun.config(text='STOP AUTO RUN')
+        is_running = True
+        forward_fun(event=None)
+    else:
+        BtnAutorun.config(bg='red')
+        BtnAutorun.config(text='AUTO RUN')
+        is_running = False
+        stop_fun(event=None)
+
+
+BtnAutorun = Button(top, width=11, height=2, text='AUTO RUN', bg='red')
+BtnAutorun.bind('<ButtonPress-1>', toggle_autorun)
+BtnAutorun.grid(row=6, column=4)
+top.bind('<Return>', toggle_autorun)
+
 
 # =============================================================================
 # The function is to send the command forward to the server, so as to make the 
@@ -227,22 +254,20 @@ top.bind('<KeyRelease-d>', home_fun)
 top.bind('<KeyRelease-s>', stop_fun)
 top.bind('<KeyRelease-w>', stop_fun)
 
-spd = 50
 
-
-def changeSpeed(ev=None):
+# =============================================================================
+# Car speed slider
+# =============================================================================
+def send_speed(ev=None):
     tmp = 'speed'
-    global spd
-    spd = speed.get()
-    data = tmp + str(spd)  # Change the integers into strings and combine them with the string 'speed'.
+    data = tmp + str(speed.get())  # Change the integers into strings and combine them with the string 'speed'.
     print 'sendData = %s' % data
     tcpCliSock.send(data)  # Send the speed data to the server(Raspberry Pi)
 
 
-label = Label(top, text='Speed:', fg='red')  # Create a label
-label.grid(row=6, column=0)  # Label layout
-
-speed = Scale(top, from_=0, to=100, orient=HORIZONTAL, command=changeSpeed)  # Create a scale
+label = Label(top, text='Speed:', fg='red')
+label.grid(row=6, column=0)
+speed = Scale(top, from_=0, to=100, orient=HORIZONTAL, command=send_speed)
 speed.set(50)
 speed.grid(row=6, column=1)
 
