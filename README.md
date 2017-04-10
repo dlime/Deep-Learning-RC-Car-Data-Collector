@@ -41,8 +41,8 @@ Install `opencv2` (follow this [guide](http://www.pyimagesearch.com/2016/04/18/i
 ### How to run car calibration:
 
 * Set HOST with your car IP in `client/cali_client.py`
-* From your car run `sudo python2 server/cali_server.py`
-* From your car PC `sudo python2 server/cali_client.py`
+* From your car run `cd server; sudo python2 cali_server.py`
+* From your car PC `cd client; python2 cali_client.py`
 * Tune the parameters and press `Confirm`
 
 <a id="how_to_run"></a>
@@ -57,16 +57,15 @@ Before proceeding:
 
 From Rasperry PI run the server routing:
 
-                sudo python2 server/tcp_server.py
+                cd server
+                sudo python2 tcp_server.py
 
 From user computer run the client + GUI application:
 
-                sudo python2 client/client_App.py
+                cd client
+                python2 client_App.py
 
 Once the GUI is shown, click on `RECORD` or press `Space` to start recording webcam images. Press `Space` again to stop recording.
-
-**NOTE: the car will slowly start to walk, control the steering wheel!**
-
 
 Recorded data will be stored in this way:
 
@@ -77,6 +76,8 @@ Recorded data will be stored in this way:
 
                 image_path,steering_angle
 
+
+You'll find it very handy to make the car go at a constant speed while recording data. To do so, just press `Enter` or click on button `AUTO RUN`. The auto run will use the current speed set, beware of high values! 
 
 
 <a id="about_this_kit"></a>
