@@ -2,3 +2,4 @@
 server/config
 .idea
 server/IMG
+server/CNN/model.h5

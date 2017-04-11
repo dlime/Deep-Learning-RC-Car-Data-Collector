@@ -104,6 +104,32 @@ BtnAutorun.bind('<ButtonPress-1>', toggle_autorun)
 BtnAutorun.grid(row=6, column=4)
 top.bind('<Return>', toggle_autorun)
 
+# =============================================================================
+# Toggle autonomous drive button
+# =============================================================================
+is_driving_autonomously = False
+
+
+def toggle_autonomous_drive(event):
+    global is_driving_autonomously
+    if not is_driving_autonomously:
+        BtnAutodrive.config(bg='gray')
+        BtnAutodrive.config(text='STOP DRIVE')
+        is_driving_autonomously = True
+    else:
+        BtnAutodrive.config(bg='red')
+        BtnAutodrive.config(text='AUTONOMOUS DRIVE')
+        is_driving_autonomously = False
+
+    data = 'toggleAutonomousDrive' + str(is_driving_autonomously)
+    print 'sendData = %s' % data
+    tcpCliSock.send(data)
+
+
+BtnAutodrive = Button(top, width=15, height=2, text='AUTONOMOUS DRIVE', bg='red')
+BtnAutodrive.bind('<ButtonPress-1>', toggle_autonomous_drive)
+BtnAutodrive.grid(row=5, column=4)
+
 
 # =============================================================================
 # The function is to send the command forward to the server, so as to make the 
