@@ -99,7 +99,7 @@ def predicting_loop():
 
 
 def recording_setup():
-    global csv_file, image_counter, writer, recording_thread, recording_run_event
+    global csv_file, image_counter, writer, video_capture, recording_thread, recording_run_event
     image_counter = 0
 
     video_capture = cv2.VideoCapture(0)
@@ -147,7 +147,7 @@ def setup():
 
 
 def process_command(data):
-    global recording_enabled
+    global recording_enabled, predicting_enabled
 
     # Ignore any command if we are in autonomous driving mode
     if get_predicting_enabled() and data != 'toggleAutonomousDriveFalse':
