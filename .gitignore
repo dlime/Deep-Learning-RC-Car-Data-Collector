@@ -1,4 +1,5 @@
 *.pyc
 server/config
 .idea
-server/IMG
+server/CNN/data
+server/CNN/model.h5
