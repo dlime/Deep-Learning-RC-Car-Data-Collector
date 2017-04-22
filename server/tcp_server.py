@@ -99,7 +99,7 @@ def predicting_loop():
 
 
 def recording_setup():
-    global csv_file, image_counter, writer, video_capture, recording_thread, recording_run_event
+    global csv_file, image_counter, video_capture, writer, recording_thread, recording_run_event
     image_counter = 0
 
     video_capture = cv2.VideoCapture(0)
