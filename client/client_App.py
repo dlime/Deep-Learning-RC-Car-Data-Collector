@@ -6,7 +6,7 @@ from socket import *  # Import necessary modules
 top = Tk()  # Create a top window
 top.title('Sunfounder Raspberry Pi Smart Video Car')
 
-HOST = '192.168.1.3'  # Server(Raspberry Pi) IP address
+HOST = 'raspberrylime.local'  # Server(Raspberry Pi) IP address
 PORT = 21567
 BUFSIZ = 1024  # buffer size
 ADDR = (HOST, PORT)

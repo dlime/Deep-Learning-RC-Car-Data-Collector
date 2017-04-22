@@ -46,9 +46,16 @@ def get_recording_enabled():
 def recording_setup():
     global csv_file, image_counter, video_capture, writer, recording_thread, recording_run_event
     image_counter = 0
+
     video_capture = cv2.VideoCapture(0)
+    video_capture.set(cv2.CAP_PROP_FRAME_WIDTH, 320)
+    video_capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 240)
+    if not video_capture.isOpened():
+        print("Error: Camera didn't open for capture.")
+
     csv_file = open('IMG/driving_log.csv', 'w')
     writer = csv.writer(csv_file)
+
     recording_run_event = threading.Event()
     recording_run_event.set()
     recording_thread = threading.Thread(target=recording_loop)
