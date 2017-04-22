@@ -49,8 +49,8 @@ steering_angle_slide = Scale(top, from_=left_pwm_angle, to=right_pwm_angle, orie
                              command=send_steering_angle)
 steering_angle_slide.set(home_pwm_angle)
 steering_angle_slide.grid(row=7, column=1)
-top.bind('<KeyPress-n>', steering_decrease)
-top.bind('<KeyPress-m>', steering_increase)
+top.bind('<KeyPress-z>', steering_decrease)
+top.bind('<KeyPress-c>', steering_increase)
 
 # =============================================================================
 # Toggle record button
@@ -253,6 +253,7 @@ top.bind('<KeyRelease-a>', home_fun)  # Release key 'A' and the car will turn ba
 top.bind('<KeyRelease-d>', home_fun)
 top.bind('<KeyRelease-s>', stop_fun)
 top.bind('<KeyRelease-w>', stop_fun)
+top.bind('<KeyPress-x>', home_fun)
 
 
 # =============================================================================
