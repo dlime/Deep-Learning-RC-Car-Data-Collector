@@ -95,8 +95,7 @@ def predicting_loop():
 
         print 'predicted_steering_angle(int) = %d' % predicted_steering_angle
         car_dir.turn_by(predicted_steering_angle)
-        time.sleep(0.2)
-
+        time.sleep(0.1)
 
 def recording_setup():
     global csv_file, image_counter, video_capture, writer, recording_thread, recording_run_event
