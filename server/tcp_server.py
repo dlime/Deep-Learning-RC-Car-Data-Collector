@@ -97,6 +97,7 @@ def predicting_loop():
         car_dir.turn_by(predicted_steering_angle)
         time.sleep(0.1)
 
+
 def recording_setup():
     global csv_file, image_counter, writer, video_capture, recording_thread, recording_run_event
     image_counter = 0

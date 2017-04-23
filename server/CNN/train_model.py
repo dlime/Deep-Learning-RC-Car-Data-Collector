@@ -3,6 +3,7 @@ import json
 import matplotlib.pyplot as plt
 import pandas as pd
 from keras.callbacks import EarlyStopping, ModelCheckpoint
+from keras.models import Model, model_from_json
 from keras.layers import Convolution2D, Input, Dropout
 from keras.layers import Flatten, Dense
 from keras.utils.visualize_util import plot
@@ -117,6 +118,15 @@ if __name__ == '__main__':
                         nb_val_samples=rdi_val.n,
                         nb_epoch=NB_EPOCH,
                         callbacks=[checkpoint, early_stopping])
+
+    # # Load model
+    # print 'Loading model'
+    # with open('model.json', 'r') as model_file:
+    #     model = model_from_json(json.load(model_file))
+    #
+    # print 'Compiling model'
+    # model.compile("adam", "mse")
+    # model.load_weights('model.h5')
 
     predicted_steering_angles = []
     for path in training_log.image.values:
