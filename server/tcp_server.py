@@ -68,7 +68,7 @@ def recording_loop():
             ret, image = video_capture.read()
             if ret:
                 image_path = "IMG/central-" + str(image_counter) + ".jpg"
-                writer.writerow([image_path, car_dir.get_current_steering_angle()])
+                writer.writerow([image_path, car_dir.get_current_steering_value()])
                 cv2.imwrite(image_path, image)
                 image_counter += 1
                 print 'image stored..'
@@ -87,7 +87,7 @@ def setup():
 
 
 def process_command(data):
-    global recording_enabled, current_steering_angle
+    global recording_enabled
     if data == ctrl_cmd[0]:
         print 'motor moving forward'
         motor.forward()
@@ -150,18 +150,10 @@ def process_command(data):
         print data
         num_len = len(data) - len('turnBy')
         if num_len == 1 or num_len == 2 or num_len == 3:
-            received_angle = data[-num_len:]
-            steering_angle = int(received_angle)
-            print 'steering_angle(int) = %d' % steering_angle
-            car_dir.turn_by(steering_angle)
-    elif data[0:5] == 'turn=':  # Turning Angle
-        print 'data =', data
-        angle = data.split('=')[1]
-        try:
-            angle = int(angle)
-            car_dir.turn(angle)
-        except:
-            print 'Error: angle =', angle
+            received_value = data[-num_len:]
+            steering_value = int(received_value)
+            print 'steering_value(int) = %d' % steering_value
+            car_dir.turn_by(steering_value)
     elif data[0:8] == 'forward=':
         print 'data =', data
         spd = data[8:]

@@ -17,11 +17,10 @@ tcpCliSock.connect(ADDR)  # Connect with the server
 # =============================================================================
 # Steering angle slider
 # =============================================================================
-# PWM values taken from car_dir.py
 # TODO: expose them from tcp_server.py instead of hardcoding
-left_pwm_angle = 400
-home_pwm_angle = 450
-right_pwm_angle = 500
+LEFT_STEERING_VALUE = -10
+HOME_STEERING_VALUE = 0
+RIGHT_STEERING_VALUE = 10
 
 
 def send_steering_angle(ev=None):
@@ -34,20 +33,20 @@ def send_steering_angle(ev=None):
 def steering_decrease(event):
     print 'steering_angle-'
     current_value = steering_angle_slide.get()
-    steering_angle_slide.set(current_value - 20)
+    steering_angle_slide.set(current_value - 2)
 
 
 def steering_increase(event):
     print 'steering_angle+'
     current_value = steering_angle_slide.get()
-    steering_angle_slide.set(current_value + 20)
+    steering_angle_slide.set(current_value + 2)
 
 
 label = Label(top, text='Turn by:', fg='red')
 label.grid(row=7, column=0)
-steering_angle_slide = Scale(top, from_=left_pwm_angle, to=right_pwm_angle, orient=HORIZONTAL,
+steering_angle_slide = Scale(top, from_=LEFT_STEERING_VALUE, to=RIGHT_STEERING_VALUE, orient=HORIZONTAL,
                              command=send_steering_angle)
-steering_angle_slide.set(home_pwm_angle)
+steering_angle_slide.set(HOME_STEERING_VALUE)
 steering_angle_slide.grid(row=7, column=1)
 top.bind('<KeyPress-z>', steering_decrease)
 top.bind('<KeyPress-c>', steering_increase)
@@ -121,12 +120,12 @@ def backward_fun(event):
 
 def left_fun(event):
     print 'left'
-    steering_angle_slide.set(left_pwm_angle)
+    steering_angle_slide.set(LEFT_STEERING_VALUE)
 
 
 def right_fun(event):
     print 'right'
-    steering_angle_slide.set(right_pwm_angle)
+    steering_angle_slide.set(RIGHT_STEERING_VALUE)
 
 
 def stop_fun(event):
@@ -136,7 +135,7 @@ def stop_fun(event):
 
 def home_fun(event):
     print 'home'
-    steering_angle_slide.set(home_pwm_angle)
+    steering_angle_slide.set(HOME_STEERING_VALUE)
 
 
 def x_increase(event):

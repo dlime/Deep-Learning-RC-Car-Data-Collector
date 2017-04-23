@@ -17,7 +17,7 @@ tcpCliSock.connect(ADDR)  # Connect with the server
 
 runbtn = 'Run'
 
-offset = 0
+OFFSET = 0
 offset_x = 0
 offset_y = 0
 forward0 = 'True'
