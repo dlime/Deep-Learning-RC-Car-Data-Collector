@@ -3,6 +3,7 @@ import json
 import matplotlib.pyplot as plt
 import pandas as pd
 from keras.callbacks import EarlyStopping, ModelCheckpoint
+from keras.models import Model, model_from_json
 from keras.layers import Convolution2D, Input, Dropout
 from keras.layers import Flatten, Dense
 from keras.utils.visualize_util import plot
@@ -28,7 +29,8 @@ DATA_PATH_PREFIX = 'data/'  # allows easy change for various folders
 TRAINING_DATA_PATHS = [DATA_PATH_PREFIX + 'central/driving_log.csv',
                        DATA_PATH_PREFIX + 'reverse/driving_log.csv',
                        DATA_PATH_PREFIX + 'recover_1/driving_log.csv',
-                       DATA_PATH_PREFIX + 'recover_2/driving_log.csv']
+                       DATA_PATH_PREFIX + 'recover_2/driving_log.csv',
+                       DATA_PATH_PREFIX + 'slalom/driving_log.csv']
 
 VALIDATION_DATA_PATHS = [DATA_PATH_PREFIX + 'test_1/driving_log.csv',
                          DATA_PATH_PREFIX + 'test_2/driving_log.csv']
@@ -52,11 +54,11 @@ def get_generator(train_paths, validation_paths, batch_size=32):
     training_data_generator = RegressionImageDataGenerator(rescale=lambda x: x / 127.5 - 1.,
                                                            horizontal_flip=True,
                                                            horizontal_flip_value_transform=lambda val: -val,
-                                                           rotation_range=2,
+                                                           # rotation_range=2,
                                                            channel_shift_range=0.2,
-                                                           width_shift_range=SHIFT_RANGE,
-                                                           width_shift_value_transform=lambda val, shift: val - (
-                                                               (SHIFT_OFFSET / SHIFT_RANGE) * shift)
+                                                           # width_shift_range=SHIFT_RANGE,
+                                                           # width_shift_value_transform=lambda val, shift: val - (
+                                                           #     (SHIFT_OFFSET / SHIFT_RANGE) * shift)
                                                            # cropping=CROPPING
                                                            )
 
@@ -117,6 +119,15 @@ if __name__ == '__main__':
                         nb_val_samples=rdi_val.n,
                         nb_epoch=NB_EPOCH,
                         callbacks=[checkpoint, early_stopping])
+
+    # # Load model
+    # print 'Loading model'
+    # with open('model.json', 'r') as model_file:
+    #     model = model_from_json(json.load(model_file))
+    #
+    # print 'Compiling model'
+    # model.compile("adam", "mse")
+    # model.load_weights('model.h5')
 
     predicted_steering_angles = []
     for path in training_log.image.values:
