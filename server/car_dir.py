@@ -69,14 +69,7 @@ def turn_by(value):
     Turn the car by giving any value between range [-10, +10]
     """
     set_current_steering_value(value)
-    steering_pwm = get_steering_pwm_from_value(value) + OFFSET
-
-    if steering_pwm < LEFT_PWM:
-        steering_pwm = LEFT_PWM
-    if steering_pwm > RIGHT_PWM:
-        steering_pwm = RIGHT_PWM
-
-    pwm.write(0, 0, steering_pwm)
+    pwm.write(0, 0, get_steering_pwm_from_value(value))
 
 
 def home():

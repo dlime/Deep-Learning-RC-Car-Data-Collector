@@ -72,7 +72,7 @@ def recording_loop():
                 cv2.imwrite(image_path, image)
                 image_counter += 1
                 print 'image stored..'
-                time.sleep(0.2)
+                time.sleep(0.1)
 
 
 def setup():
