@@ -10,13 +10,12 @@ from keras.utils.visualize_util import plot
 from keras.preprocessing.image import *
 import tensorflow as tf
 from PIL import Image
-
 from utils import RegressionImageDataGenerator
 
 np.random.seed(7)
 
 # Constants
-IMG_SIZE = [240, 320]
+IMG_SIZE = [120, 160]
 CROPPING = (0, 0, 0, 0)
 SHIFT_OFFSET = 0.2
 SHIFT_RANGE = 0.2

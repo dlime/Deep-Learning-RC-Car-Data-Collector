@@ -27,7 +27,7 @@ HOST = ''  # The variable of HOST is null, so the function bind( ) can be bound 
 PORT = 21567
 BUFSIZ = 1024  # Size of the buffer
 ADDR = (HOST, PORT)
-IMAGE_SIZE = [240, 320]
+IMAGE_SIZE = [120, 160]
 
 tcpSerSock = socket(AF_INET, SOCK_STREAM)  # Create a socket.
 tcpSerSock.bind(ADDR)  # Bind the IP address and port number of the server.
