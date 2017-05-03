@@ -30,7 +30,10 @@ TRAINING_DATA_PATHS = [DATA_PATH_PREFIX + 'central/driving_log.csv',
                        DATA_PATH_PREFIX + 'reverse/driving_log.csv',
                        DATA_PATH_PREFIX + 'recover_1/driving_log.csv',
                        DATA_PATH_PREFIX + 'recover_2/driving_log.csv',
-                       DATA_PATH_PREFIX + 'slalom/driving_log.csv']
+                       DATA_PATH_PREFIX + 'slalom/driving_log.csv',
+                       DATA_PATH_PREFIX + 'track_2_central/driving_log.csv',
+                       DATA_PATH_PREFIX + 'track_2_recover/driving_log.csv',
+                       ]
 
 VALIDATION_DATA_PATHS = [DATA_PATH_PREFIX + 'test_1/driving_log.csv',
                          DATA_PATH_PREFIX + 'test_2/driving_log.csv']

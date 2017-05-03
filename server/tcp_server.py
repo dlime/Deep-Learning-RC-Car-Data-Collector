@@ -27,7 +27,7 @@ HOST = ''  # The variable of HOST is null, so the function bind( ) can be bound 
 PORT = 21567
 BUFSIZ = 1024  # Size of the buffer
 ADDR = (HOST, PORT)
-IMAGE_SIZE = [480, 640]
+IMAGE_SIZE = [240, 320]
 
 tcpSerSock = socket(AF_INET, SOCK_STREAM)  # Create a socket.
 tcpSerSock.bind(ADDR)  # Bind the IP address and port number of the server.
@@ -75,38 +75,54 @@ def predicting_setup():
     model.compile("adam", "mse")
     model.load_weights('CNN/model.h5')
 
-    # TODO: do an empty predict, it's an hack that make the model fully load and give real time prediction later
-    temp_steering_angle = int(model.predict(np.zeros((3, IMAGE_SIZE[0], IMAGE_SIZE[1])), batch_size=1))
+    # Do an empty predict, it's an hack that make the model fully load and give real time prediction later
+    empty_image = np.zeros((IMAGE_SIZE[0], IMAGE_SIZE[1], 3))
+    empty_image = empty_image[None, :, :, :]
+
+    start_time = time.time()
+    temp_steering_angle = int(model.predict(empty_image, batch_size=1))
+    end_time = time.time() - start_time
+    print 'Model prediction test 1 took %f seconds' % end_time
+
+    start_time = time.time()
+    temp_steering_angle = int(model.predict(empty_image, batch_size=1))
+    end_time = time.time() - start_time
+    print 'Model prediction test 2 took %f seconds' % end_time
 
 
 def predicting_loop():
     global video_capture, image_counter, writer, recording_enabled, csv_file, model
     while predicting_run_event.is_set():
         if not get_predicting_enabled():
-            return
+            continue
 
-        ret, image = video_capture.read()
-        if not ret:
-            return
+        start_time = time.time()
+        print 'Predicting loop'
+        print '\tGrabbing image...'
+        read_image_success, image = video_capture.read()
+        if not read_image_success:
+            print '\tfailed to read image from camera'
+            continue
 
+        print '\tPredicting...'
         image_normalized = image / 127.5 - 1.
+        predicted_steering_angle = int(model.predict(image_normalized[None, :, :, :], batch_size=1))
 
-        predicted_steering_angle = int(model.predict(image_normalized, batch_size=1))
-
-        print 'predicted_steering_angle(int) = %d' % predicted_steering_angle
         car_dir.turn_by(predicted_steering_angle)
-        time.sleep(0.1)
+        end_time = time.time() - start_time
+        print '\tpredicted angle = %d execution time %f' % (predicted_steering_angle, end_time)
 
 
 def recording_setup():
     global csv_file, image_counter, writer, video_capture, recording_thread, recording_run_event
     image_counter = 0
 
+    print 'Loading camera'
     video_capture = cv2.VideoCapture(0)
     video_capture.set(cv2.CAP_PROP_FRAME_WIDTH, 320)
     video_capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 240)
     if not video_capture.isOpened():
-        print("Error: Camera didn't open for capture.")
+        print "Error: Camera didn't open for capture."
 
     csv_file = open('IMG/driving_log.csv', 'w')
     writer = csv.writer(csv_file)
@@ -120,17 +136,18 @@ def recording_loop():
     global video_capture, image_counter, writer, recording_enabled, csv_file
     while recording_run_event.is_set():
         if not get_recording_enabled():
-            return
+            continue
 
-        ret, image = video_capture.read()
-        if not ret:
-            return
+        read_image_success, image = video_capture.read()
+        if not read_image_success:
+            print 'Predicting loop: failed to read image from camera'
+            continue
+
         image_path = "IMG/central-" + str(image_counter) + ".jpg"
         writer.writerow([image_path, car_dir.get_current_steering_value()])
         cv2.imwrite(image_path, image)
         image_counter += 1
         print 'image stored..'
-        time.sleep(0.1)
 
 
 def setup():
@@ -143,14 +160,13 @@ def setup():
     tcpCliSock, addr = tcpSerSock.accept()
     print '...connected from :', addr  # Print the IP address of the client connected with the server.
 
-    video_capture = cv2.VideoCapture(0)
-
 
 def process_command(data):
     global recording_enabled, predicting_enabled
 
     # Ignore any command if we are in autonomous driving mode
     if get_predicting_enabled() and data != 'toggleAutonomousDriveFalse':
+        print 'Autonomous driving mode, ignoring command'
         return
 
     if data == ctrl_cmd[0]:
@@ -279,7 +295,8 @@ if __name__ == "__main__":
         recording_thread.join()
         steering_angle_predictor_thread.join()
 
-    except KeyboardInterrupt:
+    except:
+        motor.ctrl(0)
         predicting_run_event.clear()
         recording_run_event.clear()
         csv_file.close()
