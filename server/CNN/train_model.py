@@ -21,24 +21,29 @@ SHIFT_OFFSET = 0.2
 SHIFT_RANGE = 0.2
 
 BATCH_SIZE = 64
-PATIENCE = 5
+PATIENCE = 10
 NB_EPOCH = 50
 
 DATA_PATH_PREFIX = 'data/'  # allows easy change for various folders
-TRAINING_DATA_PATHS = [DATA_PATH_PREFIX + 'central/driving_log.csv',
-                       DATA_PATH_PREFIX + 'reverse/driving_log.csv',
-                       DATA_PATH_PREFIX + 'recover_1/driving_log.csv',
-                       DATA_PATH_PREFIX + 'recover_2/driving_log.csv',
-                       DATA_PATH_PREFIX + 'slalom/driving_log.csv',
-                       DATA_PATH_PREFIX + 'track_2_central/driving_log.csv',
-                       DATA_PATH_PREFIX + 'track_2_recover/driving_log.csv',
-                       ]
+TRAINING_DATA_PATHS = [
+    DATA_PATH_PREFIX + 'central/driving_log.csv',
+    DATA_PATH_PREFIX + 'slalom/driving_log.csv',
+    DATA_PATH_PREFIX + 'reverse/driving_log.csv',
+    DATA_PATH_PREFIX + 'recover_1/driving_log.csv',
+    DATA_PATH_PREFIX + 'recover_2/driving_log.csv',
+    DATA_PATH_PREFIX + 'track_2_central/driving_log.csv',
+    DATA_PATH_PREFIX + 'track_2_recover/driving_log.csv',
+]
 
-VALIDATION_DATA_PATHS = [DATA_PATH_PREFIX + 'test_1/driving_log.csv',
-                         DATA_PATH_PREFIX + 'test_2/driving_log.csv']
+VALIDATION_DATA_PATHS = [
+    DATA_PATH_PREFIX + 'test_1/driving_log.csv',
+    DATA_PATH_PREFIX + 'test_2/driving_log.csv',
+]
 
 
 # Data loading
+
+
 def get_generator(train_paths, validation_paths, batch_size=32):
     global training_log, validation_log
     """
