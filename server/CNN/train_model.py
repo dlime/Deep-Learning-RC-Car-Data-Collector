@@ -32,10 +32,14 @@ TRAINING_DATA_PATHS = [
     DATA_PATH_PREFIX + 'recover_1/driving_log.csv',
     DATA_PATH_PREFIX + 'recover_2/driving_log.csv',
     DATA_PATH_PREFIX + 'track_2_central/driving_log.csv',
+    DATA_PATH_PREFIX + 'track_2_slalom/driving_log.csv',
+    DATA_PATH_PREFIX + 'track_2_slalom_2/driving_log.csv',
     DATA_PATH_PREFIX + 'track_2_recover/driving_log.csv',
 ]
 
 VALIDATION_DATA_PATHS = [
+    DATA_PATH_PREFIX + 'track_2_recover/driving_log.csv',
+    DATA_PATH_PREFIX + 'track_2_central/driving_log.csv',
     DATA_PATH_PREFIX + 'test_1/driving_log.csv',
     DATA_PATH_PREFIX + 'test_2/driving_log.csv',
 ]
@@ -62,7 +66,7 @@ def get_generator(train_paths, validation_paths, batch_size=32):
                                                            horizontal_flip=True,
                                                            horizontal_flip_value_transform=lambda val: -val,
                                                            # rotation_range=2,
-                                                           channel_shift_range=0.2,
+                                                           # channel_shift_range=0.2,
                                                            # width_shift_range=SHIFT_RANGE,
                                                            # width_shift_value_transform=lambda val, shift: val - (
                                                            #     (SHIFT_OFFSET / SHIFT_RANGE) * shift)

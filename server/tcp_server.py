@@ -119,8 +119,8 @@ def recording_setup():
 
     print 'Loading camera'
     video_capture = cv2.VideoCapture(0)
-    video_capture.set(cv2.CAP_PROP_FRAME_WIDTH, 320)
-    video_capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 240)
+    video_capture.set(cv2.CAP_PROP_FRAME_WIDTH, 160)
+    video_capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 120)
     if not video_capture.isOpened():
         print "Error: Camera didn't open for capture."
 
