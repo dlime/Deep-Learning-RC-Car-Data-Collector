@@ -40,9 +40,9 @@ Install `opencv2` (follow this [guide](http://www.pyimagesearch.com/2016/04/18/i
 <a id="how_to_run_calibration"></a>
 ### How to run car calibration:
 
-* Set HOST with your car IP in `client/cali_client.py`
-* From your car run `cd server; sudo python2 cali_server.py`
-* From your car PC `cd client; python2 cali_client.py`
+* Set HOST with your car IP in `client/car_calibration_client.py`
+* From your car run `cd server; sudo python2 car_calibration_server.py`
+* From your car PC `cd client; python2 car_calibration_client.py`
 * Tune the parameters and press `Confirm`
 
 <a id="how_to_run"></a>
