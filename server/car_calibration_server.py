@@ -52,7 +52,7 @@ def setup():
     car_dir.calibrate(offset)
 
 
-def REVERSE(x):
+def reverse(x):
     if x == 'True':
         return 'False'
     elif x == 'False':
@@ -77,7 +77,7 @@ def loop():
             # --------Motor calibration----------
             if data == 'motor_run':
                 print 'motor moving forward'
-                motor.setSpeed(50)
+                motor.set_speed(50)
                 motor.motor0(forward0)
                 motor.motor1(forward1)
             elif data[0:9] == 'leftmotor':

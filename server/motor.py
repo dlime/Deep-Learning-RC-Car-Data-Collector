@@ -26,7 +26,7 @@ pins = [Motor0_A, Motor0_B, Motor1_A, Motor1_B]
 # Adjust the duty cycle of the square waves output from channel 4 and 5 of
 # the servo driver IC, so as to control the speed of the car.
 # ===========================================================================
-def setSpeed(speed):
+def set_speed(speed):
     speed *= 40
     print 'speed is: ', speed
     pwm.write(EN_M0, 0, speed)
@@ -101,14 +101,14 @@ def backward():
     motor1(backward1)
 
 
-def forwardWithSpeed(spd=50):
-    setSpeed(spd)
+def forward_with_speed(spd=50):
+    set_speed(spd)
     motor0(forward0)
     motor1(forward1)
 
 
-def backwardWithSpeed(spd=50):
-    setSpeed(spd)
+def backward_with_speed(spd=50):
+    set_speed(spd)
     motor0(backward0)
     motor1(backward1)
 
@@ -142,16 +142,16 @@ def test():
         setup()
         ctrl(1)
         time.sleep(3)
-        setSpeed(10)
+        set_speed(10)
         time.sleep(3)
-        setSpeed(100)
+        set_speed(100)
         time.sleep(3)
         ctrl(0)
 
 
 if __name__ == '__main__':
     setup()
-    setSpeed(50)
+    set_speed(50)
     # forward()
     # backward()
     stop()

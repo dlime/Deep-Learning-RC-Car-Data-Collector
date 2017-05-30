@@ -143,7 +143,7 @@ def recording_loop():
         writer.writerow([image_path, car_dir.get_current_steering_value()])
         cv2.imwrite(image_path, image)
         image_counter += 1
-        print 'image stored..'
+        print 'image %d stored..' % image_counter
 
 
 def setup():
@@ -153,8 +153,8 @@ def setup():
     # Waiting for connection. Once receiving a connection, the function accept() returns a separate
     # client socket for the subsequent communication. By default, the function accept() is a blocking
     # one, which means it is suspended before the connection comes.
-    tcpCliSock, addr = tcpSerSock.accept()
-    print '...connected from :', addr  # Print the IP address of the client connected with the server.
+    tcpCliSock, ip_address = tcpSerSock.accept()
+    print '...connected from :', ip_address  # Print the IP address of the client connected with the server.
 
 
 def process_command(data):
@@ -162,54 +162,54 @@ def process_command(data):
 
     # Ignore any command if we are in autonomous driving mode
     if get_predicting_enabled() and data != 'toggleAutonomousDriveFalse':
-        print 'Autonomous driving mode, ignoring command'
+        print 'Autonomous driving mode, ignoring command - stop autonomous drive first'
         return
 
     if data == 'forward':
-        print 'Received forward command'
+        print 'Received forward'
         motor.forward()
     elif data == 'backward':
-        print 'Received backward command'
+        print 'Received backward'
         motor.backward()
     elif data == 'left':
-        print 'Received left command'
+        print 'Received left'
         car_dir.turn_left()
     elif data == 'right':
-        print 'Received right command'
+        print 'Received right'
         car_dir.turn_right()
     elif data == 'home':
-        print 'Received home command'
+        print 'Received home'
         car_dir.home()
     elif data == 'stop':
-        print 'Received stop command'
+        print 'Received stop'
         motor.ctrl(0)
     elif data == 'x+':
-        print 'Received x+ command'
+        print 'Received x+'
         video_dir.move_increase_x()
     elif data == 'x-':
-        print 'Received x- command'
+        print 'Received x-'
         video_dir.move_decrease_x()
     elif data == 'y+':
-        print 'Received y+ command'
+        print 'Received y+'
         video_dir.move_increase_y()
     elif data == 'y-':
-        print 'Received y- command'
+        print 'Received y-'
         video_dir.move_decrease_y()
     elif data == 'xy_home':
-        print 'Received home_x_y command'
+        print 'Received home_x_y'
         video_dir.home_x_y()
     elif data == 'toggleRecordTrue':
-        print 'Received toggleRecordTrue command'
+        print 'Received toggleRecordTrue'
         recording_enabled_lock.acquire()
         recording_enabled = True
         recording_enabled_lock.release()
     elif data == 'toggleRecordFalse':
-        print 'Received toggleRecordFalse command'
+        print 'Received toggleRecordFalse'
         recording_enabled_lock.acquire()
         recording_enabled = False
         recording_enabled_lock.release()
     elif data == 'toggleAutonomousDriveTrue':
-        print 'Received toggleAutonomousDriveTrue command'
+        print 'Received toggleAutonomousDriveTrue'
         # set home steering angle and autorun ON
         car_dir.home()
         motor.forward()
@@ -218,7 +218,7 @@ def process_command(data):
         predicting_enabled = True
         predicting_enabled_lock.release()
     elif data == 'toggleAutonomousDriveFalse':
-        print 'Received toggleAutonomousDriveFalse command'
+        print 'Received toggleAutonomousDriveFalse'
         motor.stop()
         predicting_enabled_lock.acquire()
         predicting_enabled = False
@@ -235,7 +235,7 @@ def process_command(data):
             print 'spd(int) = %d' % spd
             if spd < 24:
                 spd = 24
-            motor.setSpeed(spd)
+            motor.set_speed(spd)
     elif data[0:6] == 'turnBy':
         print data
         num_len = len(data) - len('turnBy')
@@ -249,7 +249,7 @@ def process_command(data):
         spd = data[8:]
         try:
             spd = int(spd)
-            motor.forwardWithSpeed(spd)
+            motor.forward_with_speed(spd)
         except:
             print 'Error speed =', spd
     elif data[0:9] == 'backward=':
@@ -257,7 +257,7 @@ def process_command(data):
         spd = data.split('=')[1]
         try:
             spd = int(spd)
-            motor.backwardWithSpeed(spd)
+            motor.backward_with_speed(spd)
         except:
             print 'ERROR, speed =', spd
     else:
@@ -288,9 +288,11 @@ if __name__ == "__main__":
         steering_angle_predictor_thread.join()
 
     except:
+        print 'Quitting, cleaning up...'
         motor.ctrl(0)
         predicting_run_event.clear()
         recording_run_event.clear()
         csv_file.close()
         video_capture.release()
         tcpSerSock.close()
+        print 'Quitting! Bye!'
