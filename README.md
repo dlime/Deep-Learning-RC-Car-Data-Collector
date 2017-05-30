@@ -52,7 +52,7 @@ Before proceeding:
 * Check that you installed all the [required libraries](#prerequisites)
 * You have [calibrated](#how_to_run_calibration) your car
 * Your PC can ping the car: `ping pi@<rasperry-pi-IP>`
-* You have set `HOST` with your car IP in `client/client_App.py`
+* You have set `HOST` with your car IP in `client/client_app.py`
 
 
 From Rasperry PI run the server routing:
@@ -63,7 +63,7 @@ From Rasperry PI run the server routing:
 From user computer run the client + GUI application:
 
                 cd client
-                python2 client_App.py
+                python2 client_app.py
 
 Once the GUI is shown, click on `RECORD` or press `Space` to start recording webcam images. Press `Space` again to stop recording.
 
