@@ -17,10 +17,6 @@ recording_enabled = False
 predicting_enabled_lock = threading.Lock()
 predicting_enabled = False
 
-ctrl_cmd = ['forward', 'backward', 'left', 'right', 'stop', 'read cpu_temp', 'home', 'distance', 'x+', 'x-', 'y+', 'y-',
-            'xy_home', 'toggleRecordTrue', 'toggleRecordFalse', 'toggleAutonomousDriveTrue',
-            'toggleAutonomousDriveFalse']
-
 busnum = 1  # Edit busnum to 0, if you uses Raspberry Pi 1 or 0
 
 HOST = ''  # The variable of HOST is null, so the function bind( ) can be bound to all valid addresses.
@@ -169,55 +165,51 @@ def process_command(data):
         print 'Autonomous driving mode, ignoring command'
         return
 
-    if data == ctrl_cmd[0]:
-        print 'motor moving forward'
+    if data == 'forward':
+        print 'Received forward command'
         motor.forward()
-    elif data == ctrl_cmd[1]:
-        print 'recv backward cmd'
+    elif data == 'backward':
+        print 'Received backward command'
         motor.backward()
-    elif data == ctrl_cmd[2]:
-        print 'recv left cmd'
+    elif data == 'left':
+        print 'Received left command'
         car_dir.turn_left()
-    elif data == ctrl_cmd[3]:
-        print 'recv right cmd'
+    elif data == 'right':
+        print 'Received right command'
         car_dir.turn_right()
-    elif data == ctrl_cmd[6]:
-        print 'recv home cmd'
+    elif data == 'home':
+        print 'Received home command'
         car_dir.home()
-    elif data == ctrl_cmd[4]:
-        print 'recv stop cmd'
+    elif data == 'stop':
+        print 'Received stop command'
         motor.ctrl(0)
-    elif data == ctrl_cmd[5]:
-        print 'read cpu temp...'
-        temp = cpu_temp.read()
-        tcpCliSock.send('[%s] %0.2f' % (ctime(), temp))
-    elif data == ctrl_cmd[8]:
-        print 'recv x+ cmd'
+    elif data == 'x+':
+        print 'Received x+ command'
         video_dir.move_increase_x()
-    elif data == ctrl_cmd[9]:
-        print 'recv x- cmd'
+    elif data == 'x-':
+        print 'Received x- command'
         video_dir.move_decrease_x()
-    elif data == ctrl_cmd[10]:
-        print 'recv y+ cmd'
+    elif data == 'y+':
+        print 'Received y+ command'
         video_dir.move_increase_y()
-    elif data == ctrl_cmd[11]:
-        print 'recv y- cmd'
+    elif data == 'y-':
+        print 'Received y- command'
         video_dir.move_decrease_y()
-    elif data == ctrl_cmd[12]:
-        print 'home_x_y'
+    elif data == 'xy_home':
+        print 'Received home_x_y command'
         video_dir.home_x_y()
-    elif data == ctrl_cmd[13]:
-        print 'toggleRecordTrue'
+    elif data == 'toggleRecordTrue':
+        print 'Received toggleRecordTrue command'
         recording_enabled_lock.acquire()
         recording_enabled = True
         recording_enabled_lock.release()
-    elif data == ctrl_cmd[14]:
-        print 'toggleRecordFalse'
+    elif data == 'toggleRecordFalse':
+        print 'Received toggleRecordFalse command'
         recording_enabled_lock.acquire()
         recording_enabled = False
         recording_enabled_lock.release()
-    elif data == ctrl_cmd[15]:
-        print 'toggleAutonomousDriveTrue'
+    elif data == 'toggleAutonomousDriveTrue':
+        print 'Received toggleAutonomousDriveTrue command'
         # set home steering angle and autorun ON
         car_dir.home()
         motor.forward()
@@ -225,8 +217,8 @@ def process_command(data):
         predicting_enabled_lock.acquire()
         predicting_enabled = True
         predicting_enabled_lock.release()
-    elif data == ctrl_cmd[16]:
-        print 'toggleAutonomousDriveFalse'
+    elif data == 'toggleAutonomousDriveFalse':
+        print 'Received toggleAutonomousDriveFalse command'
         motor.stop()
         predicting_enabled_lock.acquire()
         predicting_enabled = False
