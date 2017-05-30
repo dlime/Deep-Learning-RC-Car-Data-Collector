@@ -1,7 +1,9 @@
 #!/usr/bin/env python
-import RPi.GPIO as GPIO
-import PCA9685 as p
 import time  # Import necessary modules
+
+import RPi.GPIO as GPIO
+
+import server.car.PCA9685 as p
 
 # ===========================================================================
 # Raspberry Pi pin11, 12, 13 and 15 to realize the clockwise/counterclockwise

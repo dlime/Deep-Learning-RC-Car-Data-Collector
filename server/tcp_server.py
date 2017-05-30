@@ -1,15 +1,13 @@
 #!/usr/bin/env python
-import video_dir
-import car_dir
-import motor
-from socket import *
-import time
-import threading
-import cv2
 import csv
 import json
-from keras.models import model_from_json
+import threading
+import time
+import cv2
 import numpy as np
+from socket import *
+from keras.models import model_from_json
+from server.car import steering_wheels, motor, camera_direction
 
 recording_enabled_lock = threading.Lock()
 recording_enabled = False
@@ -30,11 +28,11 @@ tcpSerSock.bind(ADDR)  # Bind the IP address and port number of the server.
 tcpSerSock.listen(5)  # The parameter of listen() defines the number of connections permitted at one time. Once the
 # connections are full, others will be rejected.
 
-video_dir.setup(busnum=busnum)
-car_dir.setup(busnum=busnum)
+camera_direction.setup(busnum=busnum)
+steering_wheels.setup(busnum=busnum)
 motor.setup(busnum=busnum)  # Initialize the Raspberry Pi GPIO connected to the DC motor.
-video_dir.home_x_y()
-car_dir.home()
+camera_direction.home_x_y()
+steering_wheels.home()
 
 
 def get_recording_enabled():
@@ -104,7 +102,7 @@ def predicting_loop():
         image_normalized = image / 127.5 - 1.
         predicted_steering_angle = int(model.predict(image_normalized[None, :, :, :], batch_size=1))
 
-        car_dir.turn_by(predicted_steering_angle)
+        steering_wheels.turn_by(predicted_steering_angle)
         end_time = time.time() - start_time
         print '\tpredicted angle = %d execution time %f' % (predicted_steering_angle, end_time)
 
@@ -140,7 +138,7 @@ def recording_loop():
             continue
 
         image_path = "IMG/central-" + str(image_counter) + ".jpg"
-        writer.writerow([image_path, car_dir.get_current_steering_value()])
+        writer.writerow([image_path, steering_wheels.get_current_steering_value()])
         cv2.imwrite(image_path, image)
         image_counter += 1
         print 'image %d stored..' % image_counter
@@ -173,31 +171,31 @@ def process_command(data):
         motor.backward()
     elif data == 'left':
         print 'Received left'
-        car_dir.turn_left()
+        steering_wheels.turn_left()
     elif data == 'right':
         print 'Received right'
-        car_dir.turn_right()
+        steering_wheels.turn_right()
     elif data == 'home':
         print 'Received home'
-        car_dir.home()
+        steering_wheels.home()
     elif data == 'stop':
         print 'Received stop'
         motor.ctrl(0)
     elif data == 'x+':
         print 'Received x+'
-        video_dir.move_increase_x()
+        camera_direction.move_increase_x()
     elif data == 'x-':
         print 'Received x-'
-        video_dir.move_decrease_x()
+        camera_direction.move_decrease_x()
     elif data == 'y+':
         print 'Received y+'
-        video_dir.move_increase_y()
+        camera_direction.move_increase_y()
     elif data == 'y-':
         print 'Received y-'
-        video_dir.move_decrease_y()
+        camera_direction.move_decrease_y()
     elif data == 'xy_home':
         print 'Received home_x_y'
-        video_dir.home_x_y()
+        camera_direction.home_x_y()
     elif data == 'toggleRecordTrue':
         print 'Received toggleRecordTrue'
         recording_enabled_lock.acquire()
@@ -211,7 +209,7 @@ def process_command(data):
     elif data == 'toggleAutonomousDriveTrue':
         print 'Received toggleAutonomousDriveTrue'
         # set home steering angle and autorun ON
-        car_dir.home()
+        steering_wheels.home()
         motor.forward()
 
         predicting_enabled_lock.acquire()
@@ -223,7 +221,7 @@ def process_command(data):
         predicting_enabled_lock.acquire()
         predicting_enabled = False
         predicting_enabled_lock.release()
-        car_dir.home()
+        steering_wheels.home()
 
     elif data[0:5] == 'speed':  # Change the speed
         print data
@@ -243,7 +241,7 @@ def process_command(data):
             received_value = data[-num_len:]
             steering_value = int(received_value)
             print 'steering_value(int) = %d' % steering_value
-            car_dir.turn_by(steering_value)
+            steering_wheels.turn_by(steering_value)
     elif data[0:8] == 'forward=':
         print 'data =', data
         spd = data[8:]

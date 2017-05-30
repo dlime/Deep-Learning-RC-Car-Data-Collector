@@ -1,10 +1,7 @@
 #!/usr/bin/env python
-import RPi.GPIO as GPIO
-import video_dir
-import car_dir
-import motor
 from socket import *
-from time import ctime  # Import necessary modules
+
+from server.car import steering_wheels, motor, camera_direction
 
 HOST = ''  # The variable of HOST is null, so the function bind( ) can be bound to all valid addresses.
 PORT = 21567
@@ -45,11 +42,11 @@ def setup():
                 print 'turning1 =', forward1
     except:
         print 'no config file, set config to original'
-    video_dir.setup(busnum=busnum)
-    car_dir.setup(busnum=busnum)
+    camera_direction.setup(busnum=busnum)
+    steering_wheels.setup(busnum=busnum)
     motor.setup(busnum=busnum)
-    video_dir.calibrate(offset_x, offset_y)
-    car_dir.calibrate(offset)
+    camera_direction.calibrate(offset_x, offset_y)
+    steering_wheels.calibrate(offset)
 
 
 def reverse(x):
@@ -110,48 +107,48 @@ def loop():
             # -------Turing calibration------
             elif data[0:7] == 'offset=':
                 offset = int(data[7:])
-                car_dir.calibrate(offset)
+                steering_wheels.calibrate(offset)
             # --------------------------------
 
             # ----------Mount calibration---------
             elif data[0:8] == 'offsetx=':
                 offset_x = int(data[8:])
                 print 'Mount offset x', offset_x
-                video_dir.calibrate(offset_x, offset_y)
+                camera_direction.calibrate(offset_x, offset_y)
             elif data[0:8] == 'offsety=':
                 offset_y = int(data[8:])
                 print 'Mount offset y', offset_y
-                video_dir.calibrate(offset_x, offset_y)
+                camera_direction.calibrate(offset_x, offset_y)
             # ----------------------------------------
 
             # -------Turing calibration 2------
             elif data[0:7] == 'offset+':
                 offset = offset + int(data[7:])
                 print 'Turning offset', offset
-                car_dir.calibrate(offset)
+                steering_wheels.calibrate(offset)
             elif data[0:7] == 'offset-':
                 offset = offset - int(data[7:])
                 print 'Turning offset', offset
-                car_dir.calibrate(offset)
+                steering_wheels.calibrate(offset)
             # --------------------------------
 
             # ----------Mount calibration 2---------
             elif data[0:8] == 'offsetx+':
                 offset_x = offset_x + int(data[8:])
                 print 'Mount offset x', offset_x
-                video_dir.calibrate(offset_x, offset_y)
+                camera_direction.calibrate(offset_x, offset_y)
             elif data[0:8] == 'offsetx-':
                 offset_x = offset_x - int(data[8:])
                 print 'Mount offset x', offset_x
-                video_dir.calibrate(offset_x, offset_y)
+                camera_direction.calibrate(offset_x, offset_y)
             elif data[0:8] == 'offsety+':
                 offset_y = offset_y + int(data[8:])
                 print 'Mount offset y', offset_y
-                video_dir.calibrate(offset_x, offset_y)
+                camera_direction.calibrate(offset_x, offset_y)
             elif data[0:8] == 'offsety-':
                 offset_y = offset_y - int(data[8:])
                 print 'Mount offset y', offset_y
-                video_dir.calibrate(offset_x, offset_y)
+                camera_direction.calibrate(offset_x, offset_y)
             # ----------------------------------------
 
             # ----------Confirm--------------------
