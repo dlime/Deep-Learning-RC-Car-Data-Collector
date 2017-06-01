@@ -13,6 +13,7 @@
 
 import smbus
 import math
+import time
 
 
 class PWM(object):

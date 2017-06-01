@@ -5,6 +5,7 @@ import threading
 import time
 import cv2
 import numpy as np
+import sys
 from socket import *
 from keras.models import model_from_json
 from car import steering_wheels, motor, camera_direction
@@ -229,11 +230,11 @@ def process_command(data):
         if num_len == 1 or num_len == 2 or num_len == 3:
             tmp = data[-num_len:]
             print 'tmp(str) = %s' % tmp
-            spd = int(tmp)
-            print 'spd(int) = %d' % spd
-            if spd < 24:
-                spd = 24
-            motor.set_speed(spd)
+            speed = int(tmp)
+            print 'spd(int) = %d' % speed
+            if speed < 24:
+                speed = 24
+            motor.set_speed(speed)
     elif data[0:6] == 'turnBy':
         print data
         num_len = len(data) - len('turnBy')
@@ -244,20 +245,20 @@ def process_command(data):
             steering_wheels.turn_by(steering_value)
     elif data[0:8] == 'forward=':
         print 'data =', data
-        spd = data[8:]
+        speed = data[8:]
         try:
-            spd = int(spd)
-            motor.forward_with_speed(spd)
+            speed = int(speed)
+            motor.forward_with_speed(speed)
         except:
-            print 'Error speed =', spd
+            print 'Error speed =', speed
     elif data[0:9] == 'backward=':
         print 'data =', data
-        spd = data.split('=')[1]
+        speed = data.split('=')[1]
         try:
-            spd = int(spd)
-            motor.backward_with_speed(spd)
+            speed = int(speed)
+            motor.backward_with_speed(speed)
         except:
-            print 'ERROR, speed =', spd
+            print 'ERROR, speed =', speed
     else:
         print 'Command Error! Cannot recognize command: ' + data
 
@@ -286,7 +287,7 @@ if __name__ == "__main__":
         steering_angle_predictor_thread.join()
 
     except:
-        print 'Quitting, cleaning up...'
+        print '\nQuitting because of:', sys.exc_info()[0], 'Cleaning up...'
         motor.ctrl(0)
         predicting_run_event.clear()
         recording_run_event.clear()
