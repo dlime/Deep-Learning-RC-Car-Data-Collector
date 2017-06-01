@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import threading
 import time
-import server.car.PCA9685 as servo
+import PCA9685 as servo
 
 LEFT_STEERING_VALUE = -10
 HOME_STEERING_VALUE = 0

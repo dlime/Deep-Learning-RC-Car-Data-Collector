@@ -106,7 +106,7 @@ class PWM(object):
         if self._DEBUG:
             print self._DEBUG_INFO, "Debug on"
         self.address = address
-        if bus_number == None:
+        if bus_number is None:
             self.bus_number = self._get_bus_number()
         else:
             self.bus_number = bus_number
