@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import time
 import RPi.GPIO as GPIO
-import server.car.PCA9685 as servo
+import PCA9685 as servo
 
 # ===========================================================================
 # Raspberry Pi pin11, 12, 13 and 15 to realize the clockwise/counterclockwise

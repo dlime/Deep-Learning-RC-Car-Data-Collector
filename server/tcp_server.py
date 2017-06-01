@@ -7,7 +7,7 @@ import cv2
 import numpy as np
 from socket import *
 from keras.models import model_from_json
-from server.car import steering_wheels, motor, camera_direction
+from car import steering_wheels, motor, camera_direction
 
 recording_enabled_lock = threading.Lock()
 recording_enabled = False
@@ -15,7 +15,7 @@ recording_enabled = False
 predicting_enabled_lock = threading.Lock()
 predicting_enabled = False
 
-busnum = 1  # Edit busnum to 0, if you uses Raspberry Pi 1 or 0
+BUSNUM = 1  # Edit busnum to 0, if you uses Raspberry Pi 1 or 0
 
 HOST = ''  # The variable of HOST is null, so the function bind( ) can be bound to all valid addresses.
 PORT = 21567
@@ -28,9 +28,9 @@ tcpSerSock.bind(ADDR)  # Bind the IP address and port number of the server.
 tcpSerSock.listen(5)  # The parameter of listen() defines the number of connections permitted at one time. Once the
 # connections are full, others will be rejected.
 
-camera_direction.setup(busnum=busnum)
-steering_wheels.setup(busnum=busnum)
-motor.setup(busnum=busnum)  # Initialize the Raspberry Pi GPIO connected to the DC motor.
+camera_direction.setup(busnum=BUSNUM)
+steering_wheels.setup(busnum=BUSNUM)
+motor.setup(busnum=BUSNUM)  # Initialize the Raspberry Pi GPIO connected to the DC motor.
 camera_direction.home_x_y()
 steering_wheels.home()
 

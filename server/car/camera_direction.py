@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import time
-from server.car import PCA9685 as servo
+import PCA9685 as servo
 
 MinPulse = 200
 MaxPulse = 700
@@ -29,7 +29,7 @@ def setup(busnum=None):
     Ymax = MaxPulse + offset_y
     home_x = (Xmax + Xmin) / 2
     home_y = Ymin + 80
-    if busnum == None:
+    if busnum is None:
         pwm = servo.PWM()  # Initialize the servo controller.
     else:
         pwm = servo.PWM(bus_number=busnum)  # Initialize the servo controller.
