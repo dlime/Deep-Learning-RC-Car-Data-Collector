@@ -119,7 +119,7 @@ def recording_setup():
     if not video_capture.isOpened():
         print "Error: Camera didn't open for capture."
 
-    csv_file = open('IMG/driving_log.csv', 'w')
+    csv_file = open('CNN/data/driving_log.csv', 'w')
     writer = csv.writer(csv_file)
 
     recording_run_event = threading.Event()
@@ -138,7 +138,7 @@ def recording_loop():
             print 'Predicting loop: failed to read image from camera'
             continue
 
-        image_path = "IMG/central-" + str(image_counter) + ".jpg"
+        image_path = "CNN/data/image-" + str(image_counter) + ".jpg"
         writer.writerow([image_path, steering_wheels.get_current_steering_value()])
         cv2.imwrite(image_path, image)
         image_counter += 1
