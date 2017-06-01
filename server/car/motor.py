@@ -1,9 +1,7 @@
 #!/usr/bin/env python
-import time  # Import necessary modules
-
+import time
 import RPi.GPIO as GPIO
-
-import server.car.PCA9685 as p
+import server.car.PCA9685 as servo
 
 # ===========================================================================
 # Raspberry Pi pin11, 12, 13 and 15 to realize the clockwise/counterclockwise
@@ -39,9 +37,9 @@ def setup(busnum=None):
     global forward0, forward1, backward1, backward0
     global pwm
     if busnum == None:
-        pwm = p.PWM()  # Initialize the servo controller.
+        pwm = servo.PWM()  # Initialize the servo controller.
     else:
-        pwm = p.PWM(bus_number=busnum)  # Initialize the servo controller.
+        pwm = servo.PWM(bus_number=busnum)  # Initialize the servo controller.
 
     pwm.frequency = 60
     forward0 = 'True'
