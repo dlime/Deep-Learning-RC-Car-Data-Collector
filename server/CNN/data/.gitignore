@@ -1,0 +1,5 @@
+# The purpose of this file is to keep an empty directory  in the repo.
+# This directory will be used to store recorded images and steering
+# angle ground truths.
+
+!.gitignore

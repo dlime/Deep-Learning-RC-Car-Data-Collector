@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 from socket import *
-
 from car import steering_wheels, motor, camera_direction
 
 HOST = ''  # The variable of HOST is null, so the function bind( ) can be bound to all valid addresses.
