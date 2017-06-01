@@ -1,6 +1,5 @@
 #!/usr/bin/env python
-import time  # Import necessary modules
-
+import time
 from server.car import PCA9685 as servo
 
 MinPulse = 200
