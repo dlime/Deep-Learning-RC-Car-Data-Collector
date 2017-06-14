@@ -1,5 +1,6 @@
 Introduction:
-	Run car_calibration_server.py to car calibration server routine (calibration values are stored in "server/config")
+	Run car_calibration_server.py to car calibration server routine
+	(calibration values are stored in "server/config")
 	Run tcp_server.py for car control GUI server routine.
 
 Notice:
