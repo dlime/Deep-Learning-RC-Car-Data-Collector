@@ -22,7 +22,7 @@ SHIFT_RANGE = 0.2
 
 BATCH_SIZE = 64
 PATIENCE = 10
-NB_EPOCH = 50
+NB_EPOCH = 1
 
 DATA_PATH_PREFIX = 'data/'  # allows easy change for various folders
 TRAINING_DATA_PATHS = [
@@ -101,46 +101,48 @@ def get_model():
 
 
 if __name__ == '__main__':
-    # Tweaks for low memory VGAs (feel free to comment these lines away)
+    # Tweaks for low memory VGA
     config = tf.ConfigProto()
     config.gpu_options.allow_growth = True
     config.gpu_options.per_process_gpu_memory_fraction = 0.7
     session = tf.Session(config=config)
 
+    # Get augmented data
+    X_train, X_test = get_generator(TRAINING_DATA_PATHS, VALIDATION_DATA_PATHS, batch_size=BATCH_SIZE)
+
+    # Load model
     model = get_model()
     model.summary()
     plot(model, to_file='model.png', show_shapes=True)
-    model.compile(optimizer='adam', loss='mean_squared_error')
+    model.compile(optimizer='adam', loss='mean_squared_error', metrics=['mae', 'acc'])
 
-    # Persist trained model
+    # Persist loaded model
     model_json = model.to_json()
     with open('model.json', 'w') as f:
         json.dump(model_json, f)
-
-    rdi_train, rdi_val = get_generator(TRAINING_DATA_PATHS, VALIDATION_DATA_PATHS, batch_size=BATCH_SIZE)
 
     checkpoint = ModelCheckpoint('model.h5', monitor='val_loss', verbose=1, save_best_only=True,
                                  save_weights_only=False, mode='auto')
     early_stopping = EarlyStopping(monitor='val_loss', min_delta=0, patience=PATIENCE, verbose=1, mode='auto')
 
-    # Train the model with exactly one version of each image
-    model.fit_generator(rdi_train,
-                        samples_per_epoch=rdi_train.n,
-                        validation_data=rdi_val,
-                        nb_val_samples=rdi_val.n,
-                        nb_epoch=NB_EPOCH,
-                        callbacks=[checkpoint, early_stopping])
+    history = model.fit_generator(X_train,
+                                  samples_per_epoch=X_train.n,
+                                  validation_data=X_test,
+                                  nb_val_samples=X_test.n,
+                                  nb_epoch=NB_EPOCH,
+                                  callbacks=[checkpoint, early_stopping])
 
-    # # Load model
+    # Load model
     # print 'Loading model'
     # with open('model.json', 'r') as model_file:
     #     model = model_from_json(json.load(model_file))
     #
     # print 'Compiling model'
-    # model.compile("adam", "mse")
+    # model.compile(optimizer="adam", loss="mse", metrics=['mae', 'acc'])
     # model.load_weights('model.h5')
 
-    predicted_steering_angles = []
+    # Test the model on training images to check the accuracy
+    predicted_steering_angles = []  # Y_train
     for path in training_log.image.values:
         image = Image.open(path)
         image_array = np.asarray(image)
@@ -149,6 +151,38 @@ if __name__ == '__main__':
         steering_angle_center = int(model.predict(transformed_image_array, batch_size=1))
         predicted_steering_angles.append(steering_angle_center)
 
+    # Print accuracy values
+    print 'MODEL HISTORY VALUES'
+    print 'Accuracy: ', history.history['acc'][-1]
+    print 'Loss    : ', history.history['mean_absolute_error'][-1]
+    model_stats_file = open("model_stats.txt", "w")
+    model_stats_file.write('Training set size  : %d\n' % X_train.n)
+    model_stats_file.write('Validation set size: %d\n' % X_test.n)
+    model_stats_file.write('Epochs  : %d\n' % NB_EPOCH)
+    model_stats_file.write('Accuracy: %f\n' % history.history['acc'][-1])
+    model_stats_file.write('Loss    : %f' % history.history['mean_absolute_error'][-1])
+    model_stats_file.close()
+
+    # Plot accuracy history during model training
+    plt.figure(0)
+    plt.plot(history.history['acc'])
+    plt.plot(history.history['val_acc'])
+    plt.title('model accuracy')
+    plt.ylabel('accuracy')
+    plt.xlabel('epoch')
+    plt.legend(['train', 'test'], loc='upper left')
+
+    # Plot loss history during model training
+    plt.figure(1)
+    plt.plot(history.history['loss'])
+    plt.plot(history.history['val_loss'])
+    plt.title('model loss')
+    plt.ylabel('loss')
+    plt.xlabel('epoch')
+    plt.legend(['train', 'test'], loc='upper left')
+
+    # Plot predicted values with ground truths
+    plt.figure(2)
     plt.plot(predicted_steering_angles)
     plt.plot(training_log.steering_angle.values)
     plt.title('accuracy')
