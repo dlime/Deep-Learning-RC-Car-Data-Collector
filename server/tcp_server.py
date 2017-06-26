@@ -77,12 +77,12 @@ def predicting_setup():
     start_time = time.time()
     temp_steering_angle = int(model.predict(empty_image, batch_size=1))
     end_time = time.time() - start_time
-    print 'Model prediction test 1 took %f seconds' % end_time
+    print '\tModel prediction test 1 took %f seconds' % end_time
 
     start_time = time.time()
     temp_steering_angle = int(model.predict(empty_image, batch_size=1))
     end_time = time.time() - start_time
-    print 'Model prediction test 2 took %f seconds' % end_time
+    print '\tModel prediction test 2 took %f seconds' % end_time
 
 
 def predicting_loop():
@@ -114,10 +114,18 @@ def recording_setup():
 
     print 'Loading camera'
     video_capture = cv2.VideoCapture(0)
-    video_capture.set(cv2.CAP_PROP_FRAME_WIDTH, 160)
-    video_capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 120)
+    video_capture.set(cv2.CAP_PROP_FRAME_WIDTH, IMAGE_SIZE[1])
+    video_capture.set(cv2.CAP_PROP_FRAME_HEIGHT, IMAGE_SIZE[0])
+    video_capture.set(cv2.CAP_PROP_FPS, 60)
     if not video_capture.isOpened():
         print "Error: Camera didn't open for capture."
+    else:
+        print 'Camera opened successfully'
+        print '\tFrame width:  %d' % video_capture.get(cv2.CAP_PROP_FRAME_WIDTH)
+        print '\tFrame height: %d' % video_capture.get(cv2.CAP_PROP_FRAME_HEIGHT)
+        print '\tFPS:          %d' % video_capture.get(cv2.CAP_PROP_FPS)
+        print 'Warming up camera sensors. Wait 2 seconds..\n'
+        time.sleep(2)
 
     csv_file = open('CNN/data/driving_log.csv', 'w')
     writer = csv.writer(csv_file)
@@ -148,7 +156,7 @@ def recording_loop():
 def setup():
     global tcpCliSock, datacolletor, video_capture
 
-    print 'Waiting for connection...'
+    print '\nWaiting for connection...'
     # Waiting for connection. Once receiving a connection, the function accept() returns a separate
     # client socket for the subsequent communication. By default, the function accept() is a blocking
     # one, which means it is suspended before the connection comes.
@@ -287,11 +295,12 @@ if __name__ == "__main__":
         steering_angle_predictor_thread.join()
 
     except:
-        print '\nQuitting because of:', sys.exc_info()[0], 'Cleaning up...'
+        print '\nQuitting because of:', sys.exc_info()[0]
+        print '\tCleaning up...'
         motor.ctrl(0)
         predicting_run_event.clear()
         recording_run_event.clear()
         csv_file.close()
         video_capture.release()
         tcpSerSock.close()
-        print 'Quitting! Bye!'
+        print '\tBye!'
