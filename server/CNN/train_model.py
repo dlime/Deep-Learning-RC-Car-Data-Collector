@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from keras.callbacks import EarlyStopping, ModelCheckpoint
 from keras.models import Model, model_from_json
-from keras.layers import Convolution2D, Input, Dropout
+from keras.layers import Convolution2D, MaxPooling2D, Input, Dropout
 from keras.layers import Flatten, Dense
 from keras.utils.visualize_util import plot
 from keras.preprocessing.image import *
@@ -21,7 +21,7 @@ SHIFT_OFFSET = 0.2
 SHIFT_RANGE = 0.2
 
 BATCH_SIZE = 64
-PATIENCE = 10
+PATIENCE = 5
 NB_EPOCH = 40
 
 DATA_PATH_PREFIX = 'data/'  # allows easy change for various folders
@@ -112,8 +112,13 @@ def get_nvidia_model():
 def get_model():
     image_input = Input(shape=(IMG_SIZE[0], IMG_SIZE[1], 3), name='image_input')
     x = Convolution2D(8, 3, 3, subsample=(2, 2), activation='relu', border_mode='same')(image_input)
+    x = MaxPooling2D(pool_size=(2, 2))(x)
+
     x = Convolution2D(16, 3, 3, subsample=(2, 2), activation='relu', border_mode='same')(x)
+    x = MaxPooling2D(pool_size=(2, 2))(x)
+
     x = Convolution2D(32, 3, 3, subsample=(2, 2), activation='relu', border_mode='same')(x)
+    x = MaxPooling2D(pool_size=(2, 2))(x)
 
     merged = Flatten()(x)
     x = Dense(256, activation='linear')(merged)
