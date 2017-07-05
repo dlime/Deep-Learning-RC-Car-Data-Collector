@@ -22,7 +22,7 @@ SHIFT_RANGE = 0.2
 
 BATCH_SIZE = 64
 PATIENCE = 10
-NB_EPOCH = 1
+NB_EPOCH = 40
 
 DATA_PATH_PREFIX = 'data/'  # allows easy change for various folders
 TRAINING_DATA_PATHS = [
@@ -84,6 +84,29 @@ def get_generator(train_paths, validation_paths, batch_size=32):
         validation_data_generator.flow_from_directory(validation_log.image.values,
                                                       validation_log.steering_angle.values, shuffle=True,
                                                       target_size=IMG_SIZE, batch_size=batch_size))
+
+
+def get_nvidia_model():
+    image_input = Input(shape=(IMG_SIZE[0], IMG_SIZE[1], 3), name='image_input')
+
+    x = Convolution2D(24, 5, 5, subsample=(2, 2), init='he_normal', activation='elu')(image_input)
+    x = Convolution2D(36, 5, 5, subsample=(2, 2), init='he_normal', activation='elu')(x)
+    x = Convolution2D(48, 5, 5, subsample=(2, 2), init='he_normal', activation='elu')(x)
+    x = Convolution2D(64, 3, 3, subsample=(1, 1), init='he_normal', activation='elu')(x)
+    x = Convolution2D(64, 3, 3, subsample=(1, 1), init='he_normal', activation='elu')(x)
+
+    merged = Flatten()(x)
+    x = Dense(1164, activation='elu', init='he_normal')(merged)
+    x = Dropout(.2)(x)
+    x = Dense(100, activation='elu', init='he_normal')(x)
+    x = Dropout(.2)(x)
+    x = Dense(50, activation='elu', init='he_normal')(x)
+    x = Dropout(.2)(x)
+    x = Dense(10, activation='elu', init='he_normal')(x)
+    x = Dropout(.2)(x)
+    steering_angle_out = Dense(1, activation='elu', name='steering_angle_out')(x)
+
+    return Model(input=[image_input], output=[steering_angle_out])
 
 
 def get_model():
