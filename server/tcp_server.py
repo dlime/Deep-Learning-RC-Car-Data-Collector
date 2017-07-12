@@ -94,7 +94,7 @@ def predicting_loop():
         start_time = time.time()
         print 'Predicting loop'
         print '\tGrabbing image...'
-        read_image_success, image = camera_stream.get_image()
+        read_image_success, image = camera_stream.read()
         if not read_image_success:
             print '\tfailed to read image from camera'
             continue
@@ -127,16 +127,15 @@ def recording_loop():
         if not get_recording_enabled():
             continue
 
-        read_image_success, image = camera_stream.get_image()
-        if not read_image_success:
-            print 'Predicting loop: failed to read image from camera'
-            continue
-
         image_path = "CNN/data/image-" + str(image_counter) + ".jpg"
         writer.writerow([image_path, steering_wheels.get_current_steering_value()])
+
+        image = camera_stream.read()
         cv2.imwrite(image_path, image)
-        image_counter += 1
+
         print 'image %d stored..' % image_counter
+
+        image_counter += 1
 
 
 def setup():

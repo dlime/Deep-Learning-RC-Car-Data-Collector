@@ -1,72 +1,54 @@
+from picamera.array import PiRGBArray
+from picamera import PiCamera
+from threading import Thread
 import cv2
-import threading
-import sys
 
 
-class Camera(object):
-    SOURCE = 0
+class Camera:
     WIDTH = 160
     HEIGHT = 120
-    FPS = 60
 
-    def __init__(self):
-        self.video_capture = cv2.VideoCapture(self.SOURCE)
-        self.video_capture.set(cv2.CAP_PROP_FRAME_WIDTH, self.WIDTH)
-        self.video_capture.set(cv2.CAP_PROP_FRAME_HEIGHT, self.HEIGHT)
-        self.video_capture.set(cv2.CAP_PROP_FPS, self.FPS)
+    def __init__(self, resolution=(WIDTH, HEIGHT), framerate=60):
+        # initialize the camera and stream
+        self.camera = PiCamera()
+        self.camera.resolution = resolution
+        self.camera.framerate = framerate
+        self.rawCapture = PiRGBArray(self.camera, size=resolution)
+        self.stream = self.camera.capture_continuous(self.rawCapture,
+                                                     format="bgr", use_video_port=True)
 
-        if not self.video_capture.isOpened():
-            sys.exit("Error: Camera didn't open for capture.")
-
-        print 'Camera opened successfully'
-        print '\tFrame width:  %d' % self.video_capture.get(cv2.CAP_PROP_FRAME_WIDTH)
-        print '\tFrame height: %d' % self.video_capture.get(cv2.CAP_PROP_FRAME_HEIGHT)
-        print '\tFPS:          %d' % self.video_capture.get(cv2.CAP_PROP_FPS)
-
-        self.image_lock = threading.Lock()
-        self.success, self.image = self.video_capture.read()
-
-        self.is_capturing_lock = threading.Lock()
-        self.is_capturing = False
-
-    def get_is_capturing(self):
-        self.is_capturing_lock.acquire()
-        is_capturing = self.is_capturing
-        self.is_capturing_lock.release()
-        return is_capturing
-
-    def get_image(self):
-        self.image_lock.acquire()
-        success = self.success
-        image = self.image
-        self.image_lock.release()
-        return success, image
+        # initialize the frame and the variable used to indicate
+        # if the thread should be stopped
+        self.frame = None
+        self.stopped = False
 
     def start(self):
-        if self.get_is_capturing():
-            print '\tCamera is already capturing'
-            return
-
-        self.is_capturing = True
-        camera_thread = threading.Thread(target=self.capture_loop)
-        camera_thread.daemon = True
-        camera_thread.start()
+        # start the thread to read frames from the video stream
+        t = Thread(target=self.update, args=())
+        t.daemon = True
+        t.start()
         return self
 
+    def update(self):
+        # keep looping infinitely until the thread is stopped
+        for f in self.stream:
+            # grab the frame from the stream and clear the stream in
+            # preparation for the next frame
+            self.frame = f.array
+            self.rawCapture.truncate(0)
+
+            # if the thread indicator variable is set, stop the thread
+            # and resource camera resources
+            if self.stopped:
+                self.stream.close()
+                self.rawCapture.close()
+                self.camera.close()
+                return
+
+    def read(self):
+        # return the frame most recently read
+        return self.frame
+
     def stop(self):
-        self.is_capturing_lock.acquire()
-        self.is_capturing = False
-        self.is_capturing_lock.release()
-
-    def close(self):
-        self.stop()
-        self.video_capture.release()
-
-    def capture_loop(self):
-        while self.get_is_capturing():
-            self.image_lock.acquire()
-            self.success, self.image = self.video_capture.read()
-            self.image_lock.release()
-
-            if not self.success:
-                print '\tFailed to read image from camera'
+        # indicate that the thread should be stopped
+        self.stopped = True
