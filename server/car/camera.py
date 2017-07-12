@@ -1,8 +1,6 @@
 from picamera.array import PiRGBArray
 from picamera import PiCamera
 from threading import Thread
-import cv2
-import time
 
 
 class Camera:
@@ -25,8 +23,6 @@ class Camera:
         print '\tFrame width:  %d' % self.WIDTH
         print '\tFrame height: %d' % self.HEIGHT
         print '\tFPS:          %d' % self.FPS
-        print 'Warming up camera sensors. Wait 2 seconds..\n\n'
-        time.sleep(2)
 
     def start(self):
         thread = Thread(target=self.update)

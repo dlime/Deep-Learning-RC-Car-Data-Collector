@@ -109,6 +109,8 @@ def recording_setup():
     global csv_file, image_counter, writer, recording_thread, recording_run_event, camera_stream
     image_counter = 0
     camera_stream = Camera().start()
+    print 'Warming up camera sensors. Wait 2 seconds..\n\n'
+    time.sleep(2)
 
     csv_file = open('CNN/data/driving_log.csv', 'w')
     writer = csv.writer(csv_file)
