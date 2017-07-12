@@ -3,7 +3,7 @@ import csv
 import json
 import threading
 import time
-import cv2
+import cv2  # TODO: should be dropped since PiCamera is now used
 import numpy as np
 import sys
 from socket import *
@@ -93,11 +93,8 @@ def predicting_loop():
 
         start_time = time.time()
         print 'Predicting loop'
-        print '\tGrabbing image...'
-        read_image_success, image = camera_stream.read()
-        if not read_image_success:
-            print '\tfailed to read image from camera'
-            continue
+        print '\tReading image...'
+        image = camera_stream.read()
 
         print '\tPredicting...'
         image_normalized = image / 127.5 - 1.
@@ -134,7 +131,7 @@ def recording_loop():
         print 'image %d stored..' % image_counter
 
         image_counter += 1
-        time.sleep(0.1)
+        time.sleep(0.05)
 
 
 def setup():
