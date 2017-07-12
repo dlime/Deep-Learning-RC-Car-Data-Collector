@@ -2,14 +2,15 @@ from picamera.array import PiRGBArray
 from picamera import PiCamera
 from threading import Thread
 import cv2
+import time
 
 
 class Camera:
     WIDTH = 160
     HEIGHT = 120
+    FPS = 60
 
-    def __init__(self, resolution=(WIDTH, HEIGHT), framerate=60):
-        # initialize the camera and stream
+    def __init__(self, resolution=(WIDTH, HEIGHT), framerate=FPS):
         self.camera = PiCamera()
         self.camera.resolution = resolution
         self.camera.framerate = framerate
@@ -17,28 +18,27 @@ class Camera:
         self.stream = self.camera.capture_continuous(self.rawCapture,
                                                      format="bgr", use_video_port=True)
 
-        # initialize the frame and the variable used to indicate
-        # if the thread should be stopped
-        self.frame = None
+        self.image = None
         self.stopped = False
 
+        print '\nCamera opened successfully'
+        print '\tFrame width:  %d' % self.WIDTH
+        print '\tFrame height: %d' % self.HEIGHT
+        print '\tFPS:          %d' % self.FPS
+        print 'Warming up camera sensors. Wait 2 seconds..\n\n'
+        time.sleep(2)
+
     def start(self):
-        # start the thread to read frames from the video stream
-        t = Thread(target=self.update, args=())
-        t.daemon = True
-        t.start()
+        thread = Thread(target=self.update)
+        thread.daemon = True
+        thread.start()
         return self
 
     def update(self):
-        # keep looping infinitely until the thread is stopped
-        for f in self.stream:
-            # grab the frame from the stream and clear the stream in
-            # preparation for the next frame
-            self.frame = f.array
+        for frame in self.stream:
+            self.image = frame.array
             self.rawCapture.truncate(0)
 
-            # if the thread indicator variable is set, stop the thread
-            # and resource camera resources
             if self.stopped:
                 self.stream.close()
                 self.rawCapture.close()
@@ -46,9 +46,7 @@ class Camera:
                 return
 
     def read(self):
-        # return the frame most recently read
-        return self.frame
+        return self.image
 
     def stop(self):
-        # indicate that the thread should be stopped
         self.stopped = True

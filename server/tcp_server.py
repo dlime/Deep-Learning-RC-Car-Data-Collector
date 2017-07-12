@@ -129,13 +129,12 @@ def recording_loop():
 
         image_path = "CNN/data/image-" + str(image_counter) + ".jpg"
         writer.writerow([image_path, steering_wheels.get_current_steering_value()])
-
-        image = camera_stream.read()
-        cv2.imwrite(image_path, image)
+        cv2.imwrite(image_path, camera_stream.read())
 
         print 'image %d stored..' % image_counter
 
         image_counter += 1
+        time.sleep(0.1)
 
 
 def setup():
@@ -287,6 +286,6 @@ if __name__ == "__main__":
         recording_run_event.clear()
 
         csv_file.close()
-        camera_stream.close()
+        camera_stream.stop()
         tcpSerSock.close()
         print '\tBye!'
