@@ -14,7 +14,7 @@ from utils import RegressionImageDataGenerator
 
 np.random.seed(7)
 
-IMG_SIZE = [120, 160]
+IMG_SIZE = [120, 160]  # TODO: read from Camera (or other way round)
 CROPPING = (0, 0, 0, 0)
 SHIFT_OFFSET = 0.2
 SHIFT_RANGE = 0.2

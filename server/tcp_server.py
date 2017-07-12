@@ -9,6 +9,7 @@ import sys
 from socket import *
 from keras.models import model_from_json
 from car import steering_wheels, motor, camera_direction
+from car.camera import Camera
 
 recording_enabled_lock = threading.Lock()
 recording_enabled = False
@@ -22,7 +23,6 @@ HOST = ''  # The variable of HOST is null, so the function bind( ) can be bound 
 PORT = 21567
 BUFSIZ = 1024  # Size of the buffer
 ADDR = (HOST, PORT)
-IMAGE_SIZE = [120, 160]
 
 tcpSerSock = socket(AF_INET, SOCK_STREAM)  # Create a socket.
 tcpSerSock.bind(ADDR)  # Bind the IP address and port number of the server.
@@ -71,7 +71,7 @@ def predicting_setup():
     model.load_weights('CNN/model.h5')
 
     # Do an empty predict, it's an hack that make the model fully load and give real time prediction later
-    empty_image = np.zeros((IMAGE_SIZE[0], IMAGE_SIZE[1], 3))
+    empty_image = np.zeros((Camera.HEIGHT, Camera.WIDTH, 3))
     empty_image = empty_image[None, :, :, :]
 
     start_time = time.time()
@@ -86,7 +86,7 @@ def predicting_setup():
 
 
 def predicting_loop():
-    global video_capture, image_counter, writer, recording_enabled, csv_file, model
+    global image_counter, writer, recording_enabled, csv_file, model
     while predicting_run_event.is_set():
         if not get_predicting_enabled():
             continue
@@ -94,7 +94,7 @@ def predicting_loop():
         start_time = time.time()
         print 'Predicting loop'
         print '\tGrabbing image...'
-        read_image_success, image = video_capture.read()
+        read_image_success, image = camera_stream.get_image()
         if not read_image_success:
             print '\tfailed to read image from camera'
             continue
@@ -109,23 +109,9 @@ def predicting_loop():
 
 
 def recording_setup():
-    global csv_file, image_counter, writer, video_capture, recording_thread, recording_run_event
+    global csv_file, image_counter, writer, recording_thread, recording_run_event, camera_stream
     image_counter = 0
-
-    print 'Loading camera'
-    video_capture = cv2.VideoCapture(0)
-    video_capture.set(cv2.CAP_PROP_FRAME_WIDTH, IMAGE_SIZE[1])
-    video_capture.set(cv2.CAP_PROP_FRAME_HEIGHT, IMAGE_SIZE[0])
-    video_capture.set(cv2.CAP_PROP_FPS, 60)
-    if not video_capture.isOpened():
-        print "Error: Camera didn't open for capture."
-    else:
-        print 'Camera opened successfully'
-        print '\tFrame width:  %d' % video_capture.get(cv2.CAP_PROP_FRAME_WIDTH)
-        print '\tFrame height: %d' % video_capture.get(cv2.CAP_PROP_FRAME_HEIGHT)
-        print '\tFPS:          %d' % video_capture.get(cv2.CAP_PROP_FPS)
-        print 'Warming up camera sensors. Wait 2 seconds..\n'
-        time.sleep(2)
+    camera_stream = Camera().start()
 
     csv_file = open('CNN/data/driving_log.csv', 'w')
     writer = csv.writer(csv_file)
@@ -136,12 +122,12 @@ def recording_setup():
 
 
 def recording_loop():
-    global video_capture, image_counter, writer, recording_enabled, csv_file
+    global image_counter, writer, recording_enabled, csv_file
     while recording_run_event.is_set():
         if not get_recording_enabled():
             continue
 
-        read_image_success, image = video_capture.read()
+        read_image_success, image = camera_stream.get_image()
         if not read_image_success:
             print 'Predicting loop: failed to read image from camera'
             continue
@@ -154,7 +140,7 @@ def recording_loop():
 
 
 def setup():
-    global tcpCliSock, datacolletor, video_capture
+    global tcpCliSock, datacolletor
 
     print '\nWaiting for connection...'
     # Waiting for connection. Once receiving a connection, the function accept() returns a separate
@@ -300,7 +286,8 @@ if __name__ == "__main__":
         motor.ctrl(0)
         predicting_run_event.clear()
         recording_run_event.clear()
+
         csv_file.close()
-        video_capture.release()
+        camera_stream.close()
         tcpSerSock.close()
         print '\tBye!'
