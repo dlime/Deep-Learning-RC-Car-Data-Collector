@@ -1,6 +1,5 @@
 *.pyc
 .idea
-server/config
-server/CNN/data/*
+server/CNN/data*
 server/CNN/model.h5
 server/CNN/model_stats.txt

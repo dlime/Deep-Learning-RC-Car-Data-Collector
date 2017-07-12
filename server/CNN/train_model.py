@@ -14,7 +14,6 @@ from utils import RegressionImageDataGenerator
 
 np.random.seed(7)
 
-# Constants
 IMG_SIZE = [120, 160]
 CROPPING = (0, 0, 0, 0)
 SHIFT_OFFSET = 0.2
@@ -24,28 +23,18 @@ BATCH_SIZE = 64
 PATIENCE = 5
 NB_EPOCH = 40
 
-DATA_PATH_PREFIX = 'data/'  # allows easy change for various folders
+DATA_PATH_PREFIX = 'data_new/'  # allows easy change for various folders
 TRAINING_DATA_PATHS = [
-    DATA_PATH_PREFIX + 'central/driving_log.csv',
-    DATA_PATH_PREFIX + 'slalom/driving_log.csv',
-    DATA_PATH_PREFIX + 'reverse/driving_log.csv',
-    DATA_PATH_PREFIX + 'recover_1/driving_log.csv',
-    DATA_PATH_PREFIX + 'recover_2/driving_log.csv',
-    DATA_PATH_PREFIX + 'track_2_central/driving_log.csv',
-    DATA_PATH_PREFIX + 'track_2_slalom/driving_log.csv',
-    DATA_PATH_PREFIX + 'track_2_slalom_2/driving_log.csv',
-    DATA_PATH_PREFIX + 'track_2_recover/driving_log.csv',
+    DATA_PATH_PREFIX + 'normal/driving_log.csv',
+    DATA_PATH_PREFIX + 'reversed/driving_log.csv',
+    DATA_PATH_PREFIX + 'recovery_1/driving_log.csv',
+    DATA_PATH_PREFIX + 'recovery_2/driving_log.csv',
+    DATA_PATH_PREFIX + 'recovery_3/driving_log.csv',
 ]
 
 VALIDATION_DATA_PATHS = [
-    DATA_PATH_PREFIX + 'track_2_recover/driving_log.csv',
-    DATA_PATH_PREFIX + 'track_2_central/driving_log.csv',
-    DATA_PATH_PREFIX + 'test_1/driving_log.csv',
-    DATA_PATH_PREFIX + 'test_2/driving_log.csv',
+    DATA_PATH_PREFIX + 'test/driving_log.csv',
 ]
-
-
-# Data loading
 
 
 def get_generator(train_paths, validation_paths, batch_size=32):
